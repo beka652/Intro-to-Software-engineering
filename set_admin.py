@@ -1,0 +1,1 @@
+# To set an admin and check if someone is an admin.

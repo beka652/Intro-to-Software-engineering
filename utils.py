@@ -1,0 +1,1 @@
+#provides a utility function to check if a Firebase user has administrative privileges by verifying their custom claims.
