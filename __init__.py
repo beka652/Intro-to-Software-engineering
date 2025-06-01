@@ -3,15 +3,15 @@ from flask import Flask, render_template
 app = Flask(__name__)
 
 @app.route('/home')
-def dashboard():
+def home():
     return render_template('home.html')
 
 @app.route('/register')
-def dashboard():
+def register():
     return render_template('register.html')
 
 @app.route('/SignIn')
-def dashboard():
+def signin():
     return render_template('Sigin.html')
 
 @app.route('/dashboard')
@@ -19,7 +19,7 @@ def dashboard():
     return render_template('dashboard.html')
 
 @app.route('/admin')
-def dashboard():
+def admin():
     return render_template('admin.html')
 
 if __name__ == '__main__':
