@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>SignIn</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
         .register-container {
@@ -72,7 +72,7 @@
 
         }
 
-        .go-signin{
+        .go-register{
             font-size:small;
         }
 
@@ -81,7 +81,7 @@
 <body>
     <div class="register-container">
         <form method="post" action="/register">
-            <h1>Register</h1>
+            <h1>SignIn</h1>
             <div class="input-range">
                 <label for="username" class="input-text">Username</label>
                 <input type="text" id="username" name="username" required><br>
@@ -94,28 +94,8 @@
                 <label for="password" class="input-text">Password</label>
                 <input type="password" id="password" name="password" required><br>
             </div>
-            <div class="role-selection">
-                <input type="radio" id="farmer" name="role" value="farmer" required>
-                <label for="farmer">Farmer</label><br>
-                <input type="radio" id="customer" name="role" value="customer" required>
-                <label for="customer">Customer</label><br>
-            </div>
-            <!-- if they choose farmer -->
-            <div class="input-range">
-                <label for="phone" class="input-text">Phone</label>
-                <input type="text" id="phone" name="phone" required><br>
-            </div>
-            <h3 class="address-head">Address</h3>
-            <div class="input-range">
-                <div class="address-input">
-                    <label for="city"class="input-text">City</label>
-                    <input type="city" id="city" name="city" required><br>
-                    <label for="subcity"class="input-text">Sub-city</label>
-                    <input type="subcity" id="subcity" name="subcity" required><br>
-                </div>
-            </div>
-            <button type="submit" class="register-button">Register</button>
-            <p class="go-signin">If you do have account already? <a href="{{url_for('signin')}}">SignIn</a></p>
+            <button type="submit" class="register-button">Sign in</button>
+            <p class="go-register">If you don't have account? <a href="{{url_for('register')}}">Register</a></p>
 
         </form>
     </div>

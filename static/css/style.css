@@ -7,7 +7,12 @@ body {
     background: linear-gradient(to bottom, #61e266, transparent 200%); /* Gradient background */
 }
 .input-text{
-    font-size: 15px ;
+    font-size: 14px ;
 }
-
-
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="city"],
+input[type="subcity"] {
+    font-size: 12px; 
+}
