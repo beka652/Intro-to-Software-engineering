@@ -1,126 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <style>
-        .register-container {
-            width: 500px; /* Set the width of the box */
-            background-color: #ffffff; /* Green background */
-            color: rgb(0, 0, 0); /* White text color */
-            padding: 20px; /* Space between content and border */
-            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-            display: flex; /* Use flexbox for content alignment */
-            justify-content: center; /* Center content horizontally */
-            align-items: center; /* Center content vertically */
-            text-align: center;
-            border-radius: 14px; /* Slightly rounded corners */
-        }
-        input {
-            margin-bottom: 2px; /* Adds 5px space below each input */
-            padding: 2px;
-            font-size: 16px;
-            border-radius: 5px;
-            border-width: thin;
-            border-color: #cacaca;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1px;
-            
-        }
-        input:last-child {
-            margin-bottom: 3px;
-        }
-        .role-selection {
-            margin-top: 1px;
-            display: flex;
-            flex-direction: row;
-            margin-left: 10px;
-            margin-bottom: 5px;
-        }
-        .address-head{
-            font-size: 15px;
-            margin-bottom: 1px;
-            margin-top: 2px;
-        }
-        .address-input{
-            display: flex;
-            flex-direction: row;
-            padding: 5px;
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f2f4f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
 
-        }
-        .register-button {
-            background-color: #4CAF50; /* Green background */
-            color: white; /* White text */
-            padding: 10px 20px; /* Padding for the button */
-            border: none; /* No border */
-            border-radius: 5px; /* Rounded corners */
-            cursor: pointer; /* Pointer cursor on hover */
-        }
-        .register-button:hover {
-            background-color: #45a049; /* Darker green on hover */
-        }
-        .register-button:active {
-            background-color: #3e8e41; /* Even darker green on click */
-        }
-        .input-range{
-            margin: 5px;
+    .register-container {
+      width: 100%;
+      max-width: 500px;
+      background-color: #ffffff;
+      color: #333;
+      padding: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+    }
 
-        }
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 28px;
+      color: #2c3e50;
+    }
 
-        .go-signin{
-            font-size:small;
-        }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
 
-    </style>
+    label {
+      font-size: 14px;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="city"],
+    input[type="subcity"] {
+      padding: 10px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    .role-selection {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .role-selection label {
+      margin-left: 4px;
+    }
+
+    .address-head {
+      font-size: 16px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .address-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    .address-input input {
+      flex: 1;
+    }
+
+    .register-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .register-button:hover {
+      background-color: #45a049;
+    }
+
+    .register-button:active {
+      background-color: #3e8e41;
+    }
+
+    .go-signin {
+      margin-top: 12px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .go-signin a {
+      color: #3498db;
+      text-decoration: none;
+    }
+
+    .go-signin a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .address-input {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="register-container">
-        <form method="post" action="/register">
-            <h1>Register</h1>
-            <div class="input-range">
-                <label for="username" class="input-text">Username</label>
-                <input type="text" id="username" name="username" required><br>
-            </div>
-            <div class="input-range">
-                <label for="email"class="input-text">Email</label>
-                <input type="email" id="email" name="email" required><br>
-            </div>
-            <div class="input-range">
-                <label for="password" class="input-text">Password</label>
-                <input type="password" id="password" name="password" required><br>
-            </div>
-            <div class="role-selection">
-                <input type="radio" id="farmer" name="role" value="farmer" required>
-                <label for="farmer">Farmer</label><br>
-                <input type="radio" id="customer" name="role" value="customer" required>
-                <label for="customer">Customer</label><br>
-            </div>
-            <!-- if they choose farmer -->
-            <div class="input-range">
-                <label for="phone" class="input-text">Phone</label>
-                <input type="text" id="phone" name="phone" required><br>
-            </div>
-            <h3 class="address-head">Address</h3>
-            <div class="input-range">
-                <div class="address-input">
-                    <label for="city"class="input-text">City</label>
-                    <input type="city" id="city" name="city" required><br>
-                    <label for="subcity"class="input-text">Sub-city</label>
-                    <input type="subcity" id="subcity" name="subcity" required><br>
-                </div>
-            </div>
-            <button type="submit" class="register-button">Register</button>
-            <p class="go-signin">If you do have account already? <a href="{{url_for('signin')}}">SignIn</a></p>
 
-        </form>
-    </div>
+  <div class="register-container">
+    <form method="POST" action="/register">
+      <h1>Register</h1>
 
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required>
 
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+
+      <div class="role-selection">
+        <div>
+          <input type="radio" id="farmer" name="role" value="farmer" required>
+          <label for="farmer">Farmer</label>
+        </div>
+        <div>
+          <input type="radio" id="customer" name="role" value="customer" required>
+          <label for="customer">Customer</label>
+        </div>
+      </div>
+
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" name="phone" required>
+
+      <div class="address-head">Address</div>
+      <div class="address-input">
+        <div>
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" required>
+        </div>
+        <div>
+          <label for="subcity">Sub-city</label>
+          <input type="text" id="subcity" name="subcity" required>
+        </div>
+      </div>
+
+      <button type="submit" class="register-button">Register</button>
+
+      <p class="go-signin">
+        Already have an account? 
+        <a href="/signin">Sign In</a>
+      </p>
+    </form>
+  </div>
 
 </body>
 </html>
