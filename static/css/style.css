@@ -1,0 +1,18 @@
+body {
+    margin: 0; /* Remove default body margin */
+    height: 100vh; /* Full viewport height */
+    display: flex; /* Use Flexbox */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    background: linear-gradient(to bottom, #61e266, transparent 200%); /* Gradient background */
+}
+.input-text{
+    font-size: 14px ;
+}
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="city"],
+input[type="subcity"] {
+    font-size: 12px; 
+}

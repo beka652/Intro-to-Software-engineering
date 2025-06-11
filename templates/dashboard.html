@@ -5,7 +5,12 @@
     <title>Dashboard</title>
 </head>
 <body>
-    <h1>Dashboard</h1>
-    <p>Welcome to your dashboard. Here you can manage your account and view your activity.</p>
+    <nav>
+    <a href="{{ url_for('home') }}">Home</a> |
+    <a href="{{ url_for('register') }}">Register</a> |
+    <a href="{{ url_for('signin') }}">Sign In</a> |
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    </nav>
+    <h1>Welcome to the Dashboard Page</h1>
 </body>
 </html>
