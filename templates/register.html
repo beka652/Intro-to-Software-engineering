@@ -1,177 +1,151 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Register</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/static/css/style.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f2f4f8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
+{% extends "base.html" %}
 
-    .register-container {
-      width: 100%;
-      max-width: 500px;
-      background-color: #ffffff;
-      color: #333;
-      padding: 30px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-    }
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Register</h3>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form action="{{ url_for('register.register_authentication') }}" method="POST" enctype="multipart/form-data" id="registerForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required value="{{ form_data.username if form_data else '' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required value="{{ form_data.email if form_data else '' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">I am a:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="userRole" id="farmerRole" value="Farmer" required {% if form_data and form_data.role == 'Farmer' %}checked{% endif %}>
+                                <label class="form-check-label" for="farmerRole">
+                                    Farmer
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="userRole" id="buyerRole" value="Customer" required {% if form_data and form_data.role == 'Customer' %}checked{% endif %}>
+                                <label class="form-check-label" for="buyerRole">
+                                    Buyer
+                                </label>
+                            </div>
+                        </div>
 
-    h1 {
-      text-align: center;
-      margin-bottom: 24px;
-      font-size: 28px;
-      color: #2c3e50;
-    }
+                        <div id="farmerFields" style="display: none;">
+                            <div class="mb-3">
+                                <label for="phoneNumber" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" value="{{ form_data.phone if form_data else '' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" name="city" value="{{ form_data.city if form_data else '' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="subCity" class="form-label">Sub City</label>
+                                <input type="text" class="form-control" id="subCity" name="subCity" value="{{ form_data.subcity if form_data else '' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="idPicture" class="form-label">ID Picture</label>
+                                <input type="file" class="form-control" id="idPicture" name="idPicture" accept="image/*">
+                            </div>
+                            <div class="mb-3">
+                                <label for="facePicture" class="form-label">Face Picture</label>
+                                <input type="file" class="form-control" id="facePicture" name="facePicture" accept="image/*">
+                            </div>
+                        </div>
 
-    form {
-      display: flex;
-      flex-direction: column;
-    }
-
-    label {
-      font-size: 14px;
-      margin-bottom: 4px;
-      font-weight: 500;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="city"],
-    input[type="subcity"] {
-      padding: 10px;
-      margin-bottom: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-      width: 100%;
-    }
-
-    .role-selection {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .role-selection label {
-      margin-left: 4px;
-    }
-
-    .address-head {
-      font-size: 16px;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    .address-input {
-      display: flex;
-      gap: 10px;
-    }
-
-    .address-input input {
-      flex: 1;
-    }
-
-    .register-button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .register-button:hover {
-      background-color: #45a049;
-    }
-
-    .register-button:active {
-      background-color: #3e8e41;
-    }
-
-    .go-signin {
-      margin-top: 12px;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    .go-signin a {
-      color: #3498db;
-      text-decoration: none;
-    }
-
-    .go-signin a:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 600px) {
-      .address-input {
-        flex-direction: column;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="register-container">
-    <form method="POST" action="/register">
-      <h1>Register</h1>
-
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" required>
-
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required>
-
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" required>
-
-      <div class="role-selection">
-        <div>
-          <input type="radio" id="farmer" name="role" value="farmer" required>
-          <label for="farmer">Farmer</label>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Sign Up</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div>
-          <input type="radio" id="customer" name="role" value="customer" required>
-          <label for="customer">Customer</label>
-        </div>
-      </div>
+    </div>
+</div>
 
-      <label for="phone">Phone</label>
-      <input type="text" id="phone" name="phone" required>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const farmerFields = document.getElementById('farmerFields');
+    const farmerRole = document.getElementById('farmerRole');
+    const buyerRole = document.getElementById('buyerRole');
+    const form = document.getElementById('registerForm');
 
-      <div class="address-head">Address</div>
-      <div class="address-input">
-        <div>
-          <label for="city">City</label>
-          <input type="text" id="city" name="city" required>
-        </div>
-        <div>
-          <label for="subcity">Sub-city</label>
-          <input type="text" id="subcity" name="subcity" required>
-        </div>
-      </div>
+    // Function to toggle farmer fields
+    function toggleFarmerFields() {
+        const isFarmer = farmerRole.checked;
+        farmerFields.style.display = isFarmer ? 'block' : 'none';
+        
+        // Set required attributes for farmer fields
+        const farmerInputs = farmerFields.querySelectorAll('input');
+        farmerInputs.forEach(input => {
+            if (input.type !== 'file') {
+                input.required = isFarmer;
+            }
+        });
+    }
 
-      <button type="submit" class="register-button">Register</button>
+    // Initial check for role selection
+    if (farmerRole.checked) {
+        toggleFarmerFields();
+    }
 
-      <p class="go-signin">
-        Already have an account? 
-        <a href="/signin">Sign In</a>
-      </p>
-    </form>
-  </div>
+    // Add event listeners for role selection
+    farmerRole.addEventListener('change', toggleFarmerFields);
+    buyerRole.addEventListener('change', toggleFarmerFields);
 
-</body>
-</html>
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        const selectedRole = document.querySelector('input[name="userRole"]:checked');
+        
+        if (!selectedRole) {
+            e.preventDefault();
+            alert('Please select whether you are a Farmer or Buyer');
+            return;
+        }
+
+        if (selectedRole.value === 'Farmer') {
+            const farmerInputs = farmerFields.querySelectorAll('input[required]');
+            let isValid = true;
+            
+            farmerInputs.forEach(input => {
+                if (!input.value) {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all required farmer information');
+                return;
+            }
+
+            const idPicture = document.getElementById('idPicture');
+            const facePicture = document.getElementById('facePicture');
+            
+            if (!idPicture.files.length || !facePicture.files.length) {
+                e.preventDefault();
+                alert('Please upload both ID and face pictures');
+                return;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

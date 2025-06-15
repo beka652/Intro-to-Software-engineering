@@ -6,10 +6,11 @@
 </head>
 <body>
     <nav>
-    <a href="{{ url_for('home') }}">Home</a> |
-    <a href="{{ url_for('register') }}">Register</a> |
-    <a href="{{ url_for('signin') }}">Sign In</a> |
-    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('home.home') }}">Home</a> |
+    <a href="{{ url_for('register.register') }}">Register</a> |
+    <a href="{{ url_for('signin.signin') }}">Sign In</a> |
+    <a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
     </nav>
-    <h1>Welcome to the Admin Page</h1></body>
+    <h1>Welcome to the Admin Page</h1>
+</body>
 </html>

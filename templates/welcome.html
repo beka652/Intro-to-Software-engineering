@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Farmers Market - Welcome</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/welcome.css">
+
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="navbar-logo-link"> <img src="/static/img/logo.png" alt="Farmers-Market" class="navbar-logo"></a>
+    <a class="nav-button" href="{{ url_for('register.register') }}">Register</a>
+    <a class="nav-button" href="{{ url_for('signin.signin') }}">Sign In</a>
+  </nav>
+
+<div class="hero">
+  <h1>
+    <span class="typewriter-text" id="typing"></span>
+  </h1>
+  <a href="{{ url_for('signin.signin') }}">
+    <button class="hero-sign-btn">Sign in</button>
+  </a>
+</div>
+
+
+  <div class="section fresh-section">
+    <div class="fresh-text">
+      <h2>Fresh</h2>
+      <p>We offer fresh food because we source directly from local farmers,
+          bringing you just-picked produce and artisanal goods bursting with 
+          flavor. Shop now to support our community and savor the freshest 
+          finds!</p>
+    </div>
+    <div class="fresh-image">
+      <img src="/static/img/fresh-mango.jpg" alt="Fresh products">
+    </div>
+  </div>
+
+  <div class="section local-section">
+    <div class="local-text">
+      <h2>Local</h2>
+      <p>we partner with local farmers to deliver just-harvested produce 
+        and handcrafted goods straight to you. Shop today to enjoy vibrant,
+        community-grown flavors!</p>
+    </div>
+    <div class="local-image">
+      <img src="/static/img/local.jpg" alt="local">
+    </div>
+  </div>
+  
+
+  <div class="section organic-section">
+    <div class="organic-text">
+      <h2>Organic</h2>
+      <p>We offer fresh food because our organic produce and artisanal goods 
+          are grown with care by local farmers, free from synthetic pesticides
+          and full of natural flavor. Shop now to savor wholesome, 
+          community-supported goodness!</p>
+    </div>
+    <div class="organic-image">
+      <img src="/static/img/organic.jpg" alt="Organic">
+    </div>
+  </div>
+    
+ 
+  <footer>
+    &copy; 2025 Farmers Market. All rights reserved.
+  </footer>
+
+  <script>
+    const texts = ["Welcome to Farmers Market.", "Where you find Fresh and", "High Quality local products."];
+    const typingElement = document.getElementById("typing");
+    let textIndex = 0;
+    let charIndex = 0;
+    let typing = true;
+
+    function typeLoop() {
+        if (typing) {
+            if (charIndex < texts[textIndex].length) {
+                typingElement.textContent += texts[textIndex][charIndex++];
+                setTimeout(typeLoop, 100);
+            } else {
+                typing = false;
+                setTimeout(typeLoop, 1700); // Pause before erasing
+            }
+        } else {
+            if (charIndex > 0) {
+                typingElement.textContent = texts[textIndex].substring(0, --charIndex);
+                setTimeout(typeLoop, 50);
+            } else {
+                typing = true;
+                textIndex = (textIndex + 1) % texts.length;
+                setTimeout(typeLoop, 400); // Pause before typing next
+            }
+        }
+    }
+    typeLoop();
+  </script>
+</body>
+</html>
