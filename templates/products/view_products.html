@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Available Products</h1>
+    
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if product.image_path %}
+                <img src="{{ url_for('static', filename='uploads/' + product.image_path) }}" class="card-img-top" alt="{{ product.name }}">
+                {% else %}
+                <img src="{{ url_for('static', filename='images/no-image.png') }}" class="card-img-top" alt="No image available">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p class="card-text">
+                        <strong>Price:</strong> ${{ "%.2f"|format(product.price) }}<br>
+                        <strong>Quantity Available:</strong> {{ product.quantity }}<br>
+                        <strong>Seller:</strong> {{ product.farmer.username }}
+                    </p>
+                    <button class="btn btn-primary" onclick="addToCart({{ product.id }})">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-center">No products available at the moment.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function addToCart(productId) {
+    // TODO: Implement cart functionality
+    alert('Product added to cart!');
+}
+</script>
+{% endblock %} 

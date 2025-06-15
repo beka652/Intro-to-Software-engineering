@@ -1,160 +1,165 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="/static/css/register.css">
-</head>
-<body>
-    <div class="content-box">
-        <h2>Register</h2>
-        <!-- Message container for errors/success -->
-        <div id="messageContainer" class="hidden"></div>
-        <!-- The registration form -->
-        <form id="registerForm" method="POST" action="{{ url_for('register.register_authentication') }}" enctype="multipart/form-data">
-            <div class="form-section">
-                <label for="email">Email address</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-section">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <div class="form-section">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-section">
-                <label class="radio-group">Register as:</label>
-                <div class="radio-item">
-                    <input type="radio" id="roleFarmer" name="userRole" value="farmer">
-                    <label for="roleFarmer">Farmer</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" id="roleBuyer" name="userRole" value="buyer">
-                    <label for="roleBuyer">Buyer</label>
-                </div>
-            </div>
+{% extends "base.html" %}
 
-            <!-- Farmer specific fields -->
-            <div id="farmerFields" class="form-section">
-                <div class="form-section">
-                    <label for="phoneNumber">Phone Number</label>
-                    <input type="tel" id="phoneNumber" name="phoneNumber">
-                </div>
-                <div class="form-section">
-                    <label for="city">City</label>
-                    <input type="text" id="city" name="city">
-                </div>
-                <div class="form-section">
-                    <label for="subCity">Sub City</label>
-                    <input type="text" id="subCity" name="subCity">
-                </div>
-                <div class="form-section">
-                    <label for="idPicture">Upload ID Picture</label>
-                    <input type="file" id="idPicture" name="idPicture" accept="image/*">
-                    <p class="file-input-name" id="idPictureName">No file chosen</p>
-                    <div id="idPictureUploadProgress" class="progress-container hidden">
-                        <div class="progress-bar"></div>
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Create Your Account</h2>
+                    
+                    <!-- Role Selection Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card role-card" id="farmerCard">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-tractor fa-3x mb-3 text-success"></i>
+                                    <h4>Farmer</h4>
+                                    <p class="text-muted">Sell your products directly to customers</p>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="userRole" id="roleFarmer" value="farmer">
+                                        <label class="form-check-label" for="roleFarmer">
+                                            Register as Farmer
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card role-card" id="buyerCard">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-shopping-cart fa-3x mb-3 text-primary"></i>
+                                    <h4>Buyer</h4>
+                                    <p class="text-muted">Buy fresh products from local farmers</p>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="userRole" id="roleBuyer" value="buyer">
+                                        <label class="form-check-label" for="roleBuyer">
+                                            Register as Buyer
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Registration Form -->
+                    <form id="registerForm" method="POST" action="{{ url_for('register.register_authentication') }}" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+
+                        <!-- Farmer specific fields -->
+                        <div id="farmerFields" class="hidden">
+                            <hr class="my-4">
+                            <h5 class="mb-3">Farmer Information</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="city" class="form-label">City</label>
+                                    <input type="text" class="form-control" id="city" name="city">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="subCity" class="form-label">Sub City</label>
+                                <input type="text" class="form-control" id="subCity" name="subCity">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="idPicture" class="form-label">ID Picture</label>
+                                    <input type="file" class="form-control" id="idPicture" name="idPicture" accept="image/*">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="facePicture" class="form-label">Face Picture</label>
+                                    <input type="file" class="form-control" id="facePicture" name="facePicture" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <p class="mb-0">Already have an account? <a href="{{ url_for('signin.signin') }}">Sign in</a></p>
                     </div>
                 </div>
-                <div class="form-section">
-                    <label for="facePicture">Upload Face Picture</label>
-                    <input type="file" id="facePicture" name="facePicture" accept="image/*">
-                    <p class="file-input-name" id="facePictureName">No file chosen</p>
-                    <div id="facePictureUploadProgress" class="progress-container hidden">
-                        <div class="progress-bar"></div>
-                    </div>
-                </div>
             </div>
-
-            <div class="form-section">
-                <button type="submit">
-                    Register
-                </button>
-            </div>
-        </form>
-        <p class="link-text">
-            Already have an account?
-            <a href="{{ url_for('signin.signin') }}">Login here</a>
-        </p>
+        </div>
     </div>
+</div>
 
-    <script>
-        // Get the message container element
-        const messageContainer = document.getElementById('messageContainer');
+<style>
+.role-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
 
-        // Function to display messages (replaces showModal)
-        function displayMessage(message, type) {
-            messageContainer.textContent = message;
-            messageContainer.classList.remove('hidden', 'message-error', 'message-success');
-            if (type === 'error') {
-                messageContainer.classList.add('message-error');
-            } else if (type === 'success') {
-                messageContainer.classList.add('message-success');
-            }
-            // Optional: You can add a timeout here to hide the message after a few seconds
-            // setTimeout(() => {
-            //     messageContainer.classList.add('hidden');
-            // }, 5000); // Hide after 5 seconds
-        }
+.role-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
 
-        // Ensure message container is hidden on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            messageContainer.classList.add('hidden');
-            // Initial check for farmer fields visibility
-            toggleFarmerFields();
+.role-card.selected {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+}
+
+.hidden {
+    display: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const farmerCard = document.getElementById('farmerCard');
+    const buyerCard = document.getElementById('buyerCard');
+    const farmerFields = document.getElementById('farmerFields');
+    const roleFarmer = document.getElementById('roleFarmer');
+    const roleBuyer = document.getElementById('roleBuyer');
+
+    function updateCardSelection() {
+        farmerCard.classList.toggle('selected', roleFarmer.checked);
+        buyerCard.classList.toggle('selected', roleBuyer.checked);
+        farmerFields.classList.toggle('hidden', !roleFarmer.checked);
+        
+        // Update required fields
+        const farmerInputs = farmerFields.querySelectorAll('input');
+        farmerInputs.forEach(input => {
+            input.required = roleFarmer.checked;
         });
+    }
 
-        // Function to toggle visibility of farmer-specific fields
-        function toggleFarmerFields() {
-            const farmerRoleRadio = document.getElementById('roleFarmer');
-            const farmerFieldsDiv = document.getElementById('farmerFields');
-            
-            // Get references to the specific fields you want to toggle
-            const phoneNumberInput = document.getElementById('phoneNumber');
-            const cityInput = document.getElementById('city');
-            const subCityInput = document.getElementById('subCity');
-            const idPictureInput = document.getElementById('idPicture');
-            const facePictureInput = document.getElementById('facePicture');
+    farmerCard.addEventListener('click', () => {
+        roleFarmer.checked = true;
+        updateCardSelection();
+    });
 
+    buyerCard.addEventListener('click', () => {
+        roleBuyer.checked = true;
+        updateCardSelection();
+    });
 
-            if (farmerRoleRadio.checked) {
-                farmerFieldsDiv.classList.remove('hidden');
-                // Make farmer-specific fields required when visible
-                phoneNumberInput.setAttribute('required', 'required');
-                cityInput.setAttribute('required', 'required');
-                subCityInput.setAttribute('required', 'required');
-                idPictureInput.setAttribute('required', 'required'); // Make file inputs required
-                facePictureInput.setAttribute('required', 'required');
-            } else {
-                farmerFieldsDiv.classList.add('hidden');
-                // Remove required attribute when hidden
-                phoneNumberInput.removeAttribute('required');
-                cityInput.removeAttribute('required');
-                subCityInput.removeAttribute('required');
-                idPictureInput.removeAttribute('required'); // Remove required from file inputs
-                facePictureInput.removeAttribute('required');
-            }
-        }
+    roleFarmer.addEventListener('change', updateCardSelection);
+    roleBuyer.addEventListener('change', updateCardSelection);
 
-        // Add event listeners to role radio buttons
-        document.getElementById('roleFarmer').addEventListener('change', toggleFarmerFields);
-        document.getElementById('roleBuyer').addEventListener('change', toggleFarmerFields);
-
-        // Event listeners for file inputs to update displayed file name
-        document.getElementById('idPicture').addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            document.getElementById('idPictureName').textContent = file ? `Selected: ${file.name}` : 'No file chosen';
-        });
-
-        document.getElementById('facePicture').addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            document.getElementById('facePictureName').textContent = file ? `Selected: ${file.name}` : 'No file chosen';
-        });
-    </script>
-</body>
-</html>
+    // Initial state
+    updateCardSelection();
+});
+</script>
+{% endblock %}

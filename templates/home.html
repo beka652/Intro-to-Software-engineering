@@ -1,17 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
-</head>
-<body>
-  <nav>
-    <a href="{{ url_for('home.home') }}">Home</a> |
-    <a href="{{ url_for('register.register') }}">Register</a> |
-    <a href="{{ url_for('signin.signin') }}">Sign In</a> |
-    <a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
-  </nav>
-  <p>This is the page to show product</p>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">Welcome to Farmers to Buyers</h1>
+            <p class="lead mb-4">Your one-stop platform for connecting farmers directly with buyers</p>
+            
+            {% if current_user.is_authenticated %}
+                {% if current_user.role == 'Farmer' %}
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading">Welcome, {{ current_user.username }}!</h4>
+                        <p>As a farmer, you can manage your products and reach potential buyers directly.</p>
+                        <hr>
+                        <p class="mb-0">
+                            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+                        </p>
+                    </div>
+                {% elif current_user.role == 'Customer' %}
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading">Welcome, {{ current_user.username }}!</h4>
+                        <p>Browse through fresh products directly from local farmers.</p>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h3 class="card-title">For Farmers</h3>
+                                <p class="card-text">Sell your products directly to customers and grow your business.</p>
+                                <a href="{{ url_for('register.register') }}" class="btn btn-success">Register as Farmer</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h3 class="card-title">For Buyers</h3>
+                                <p class="card-text">Buy fresh products directly from local farmers.</p>
+                                <a href="{{ url_for('register.register') }}" class="btn btn-primary">Register as Buyer</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Featured Products Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Featured Products</h2>
+            <div class="row">
+                {% for product in products %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description }}</p>
+                            <p class="text-muted">By {{ product.farmer }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 mb-0">${{ "%.2f"|format(product.price) }}</span>
+                                <button class="btn btn-primary">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% if not current_user.is_authenticated %}
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h2 class="text-center mb-4">Why Choose Us?</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-leaf fa-3x mb-3 text-success"></i>
+                            <h4>Fresh Products</h4>
+                            <p>Get products directly from local farmers</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-handshake fa-3x mb-3 text-primary"></i>
+                            <h4>Direct Connection</h4>
+                            <p>Connect directly with farmers and buyers</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-truck fa-3x mb-3 text-warning"></i>
+                            <h4>Easy Delivery</h4>
+                            <p>Convenient delivery options available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

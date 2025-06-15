@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import login_user
 from werkzeug.security import check_password_hash
 from model import User
@@ -15,20 +15,20 @@ def signin_authentication():
     password = request.form.get('password')
 
     if not username or not password:
-        return "Username and password are required!", 400
+        flash('Username and password are required!', 'danger')
+        return redirect(url_for('signin.signin'))
 
     user = User.query.filter_by(username=username).first()
 
     if user and check_password_hash(user.password_hash, password):
         login_user(user)
+        flash(f'Welcome back, {username}!', 'success')
 
+        # Redirect based on user role
         if user.role == 'Farmer':
-            return redirect(url_for('dashboard.dashboard'))
-        elif user.role == 'Customer':
-            return redirect(url_for('home.home'))
-        elif user.role == 'Admin':
-            return redirect(url_for('admin.admin_page'))
+            return redirect('/dashboard')  # Redirect farmers to dashboard
         else:
-            return redirect(url_for('home.home'))
+            return redirect('/home')  # Redirect buyers to home page
     else:
-        return "Invalid username or password!", 401
+        flash('Invalid username or password!', 'danger')
+        return redirect(url_for('signin.signin'))
