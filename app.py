@@ -5,7 +5,6 @@ from apps.home import home_bp
 from apps.dashboard import dashboard_bp
 from apps.admin import admin_bp
 from flask import Flask, render_template
-from flask_login import login_required, current_user
 
 app = Flask(__name__)
 
