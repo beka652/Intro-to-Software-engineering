@@ -73,4 +73,4 @@ def register_authentication():
     db.session.commit()
     login_user(new_user)
 
-    return redirect(url_for('home'))
+    return redirect(url_for('home.home'))
