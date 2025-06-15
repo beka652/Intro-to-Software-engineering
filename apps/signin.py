@@ -23,12 +23,12 @@ def signin_authentication():
         login_user(user)
 
         if user.role == 'Farmer':
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('dashboard.dashboard'))
         elif user.role == 'Customer':
-            return redirect(url_for('home'))
+            return redirect(url_for('home.home'))
         elif user.role == 'Admin':
-            return redirect(url_for('admin_page'))
+            return redirect(url_for('admin.admin_page'))
         else:
-            return redirect(url_for('home'))
+            return redirect(url_for('home.home'))
     else:
         return "Invalid username or password!", 401
