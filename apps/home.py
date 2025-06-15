@@ -16,12 +16,20 @@ def home():
     product_list = []
     for product in products:
         farmer = User.query.get(product.farmer_id)
+        # Construct the image URL properly
+        if product.image_path:
+            # The image_path is relative to static/uploads
+            image_url = url_for('static', filename=f'uploads/{product.image_path}')
+            print(f"Debug - Image path: {product.image_path}, URL: {image_url}")  # Debug line
+        else:
+            image_url = url_for('static', filename='images/no-image.png')
+        
         product_list.append({
             'id': product.id,
             'name': product.name,
             'description': product.description,
             'price': product.price,
-            'image': product.image_path,
+            'image_url': image_url,
             'farmer': farmer.username if farmer else 'Unknown Farmer',
             'quantity': product.quantity,
             'unit': 'units'  # Default unit since it's not in the model

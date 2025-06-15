@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import os
 
 products_bp = Blueprint('products', __name__)
-UPLOAD_FOLDER = 'static/uploads/products'
+UPLOAD_FOLDER = 'static/uploads'
 
 @products_bp.route('/')
 @login_required
@@ -35,11 +35,15 @@ def add_product():
         image = request.files.get('image')
         image_path = None
         if image and image.filename:
+            # Create user's product directory
+            user_product_dir = os.path.join(UPLOAD_FOLDER, current_user.email)
+            os.makedirs(user_product_dir, exist_ok=True)
+            
+            # Save the image
             filename = secure_filename(image.filename)
-            image_path = os.path.join(current_user.email, 'products', filename)
-            full_path = os.path.join(UPLOAD_FOLDER, current_user.email, 'products')
-            os.makedirs(full_path, exist_ok=True)
-            image.save(os.path.join(full_path, filename))
+            image_path = os.path.join(current_user.email, filename)
+            image.save(os.path.join(UPLOAD_FOLDER, image_path))
+            print(f"Debug - Saved image to: {os.path.join(UPLOAD_FOLDER, image_path)}")  # Debug line
         
         new_product = Product(
             name=name,
@@ -54,7 +58,7 @@ def add_product():
         db.session.add(new_product)
         db.session.commit()
         flash('Product added successfully!', 'success')
-        return redirect(url_for('products.view_products'))
+        return redirect(url_for('dashboard.dashboard'))
     
     return render_template('products/add_product.html')
 
@@ -78,15 +82,25 @@ def edit_product(product_id):
         # Handle product image update
         image = request.files.get('image')
         if image and image.filename:
+            # Create user's product directory
+            user_product_dir = os.path.join(UPLOAD_FOLDER, current_user.email)
+            os.makedirs(user_product_dir, exist_ok=True)
+            
+            # Delete old image if it exists
+            if product.image_path:
+                old_image_path = os.path.join(UPLOAD_FOLDER, product.image_path)
+                if os.path.exists(old_image_path):
+                    os.remove(old_image_path)
+            
+            # Save the new image
             filename = secure_filename(image.filename)
-            product.image_path = os.path.join(current_user.email, 'products', filename)
-            full_path = os.path.join(UPLOAD_FOLDER, current_user.email, 'products')
-            os.makedirs(full_path, exist_ok=True)
-            image.save(os.path.join(full_path, filename))
+            product.image_path = os.path.join(current_user.email, filename)
+            image.save(os.path.join(UPLOAD_FOLDER, product.image_path))
+            print(f"Debug - Updated image to: {os.path.join(UPLOAD_FOLDER, product.image_path)}")  # Debug line
         
         db.session.commit()
         flash('Product updated successfully!', 'success')
-        return redirect(url_for('products.view_products'))
+        return redirect(url_for('dashboard.dashboard'))
     
     return render_template('products/edit_product.html', product=product)
 
@@ -100,7 +114,13 @@ def delete_product(product_id):
     if product.farmer_id != current_user.id:
         return redirect(url_for('products.view_products'))
     
+    # Delete the product image if it exists
+    if product.image_path:
+        image_path = os.path.join(UPLOAD_FOLDER, product.image_path)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+    
     db.session.delete(product)
     db.session.commit()
     flash('Product deleted successfully!', 'success')
-    return redirect(url_for('products.view_products')) 
+    return redirect(url_for('dashboard.dashboard')) 
