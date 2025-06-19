@@ -24,7 +24,10 @@ def register_authentication():
         'city': request.form.get('city'),
         'subcity': request.form.get('subCity')
     }
-    
+    # Normalize role to title case for consistency
+    if form_data['role']:
+        form_data['role'] = form_data['role'].title()
+
     # Basic validation
     if not form_data['username'] or not form_data['password'] or not form_data['email'] or not form_data['role']:
         flash('Please fill in all required fields', 'danger')

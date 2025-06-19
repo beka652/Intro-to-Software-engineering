@@ -24,11 +24,12 @@ def signin_authentication():
         login_user(user)
         flash(f'Welcome back, {username}!', 'success')
 
-        # Redirect based on user role
-        if user.role == 'Farmer':
-            return redirect('/dashboard')  # Redirect farmers to dashboard
+        # Normalize role to title case for redirect logic
+        role = user.role.title() if user.role else ''
+        if role == 'Farmer':
+            return redirect(url_for('dashboard.dashboard'))  # Redirect farmers to dashboard
         else:
-            return redirect('/home')  # Redirect buyers to home page
+            return redirect(url_for('home.home'))  # Redirect buyers to home page
     else:
         flash('Invalid username or password!', 'danger')
         return redirect(url_for('signin.signin'))

@@ -1,3 +1,5 @@
+import os
+from flask import Flask, render_template
 from model import db, login_manager
 from apps.register import register_bp
 from apps.signin import signin_bp
@@ -5,11 +7,12 @@ from apps.home import home_bp
 from apps.dashboard import dashboard_bp
 from apps.admin import admin_bp
 from apps.products import products_bp
-from flask import Flask, render_template
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+# Store the database in the instance folder
+db_path = os.path.join(app.instance_path, 'database.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SECRET_KEY'] = 'QWERTYUIOP'
 db.init_app(app)
 login_manager.init_app(app)
