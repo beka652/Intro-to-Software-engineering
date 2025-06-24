@@ -590,9 +590,6 @@
                     <h4 class="alert-heading">Welcome, {{ current_user.username }}!</h4>
                     <p>Browse through fresh products directly from local farmers.</p>
                     <hr class="alert-separator">
-                    <p class="mb-0">
-                         <a href="{{ url_for('products.view_products') }}" class="alert-button buyer">Browse Products</a>
-                    </p>
                 </div>
             {% endif %}
         {% else %}
