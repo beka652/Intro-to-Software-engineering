@@ -566,6 +566,86 @@
             font-size: 2em;
         }
     }
+
+    /* Star Rating Styles */
+    .star-rating {
+        display: flex;
+        cursor: pointer;
+        user-select: none;
+    }
+    .star {
+        font-size: 1.5em;
+        color: #ccc;
+        transition: color 0.2s;
+    }
+    .star:hover,
+    .star:hover ~ .star {
+        color: #FFD700;
+    }
+
+    /* Feedback Form Styles */
+    .feedback-form {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+    }
+    .feedback-form textarea {
+        resize: none;
+        height: 60px;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+    .feedback-form button {
+        align-self: flex-start;
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: background-color 0.3s;
+    }
+    .feedback-form button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Comments Section Styles */
+    .product-comments-section {
+        margin-top: 15px;
+        border-top: 1px solid #eee;
+        padding-top: 10px;
+    }
+    .product-comment {
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        position: relative;
+    }
+    .product-comment strong {
+        color: #333;
+    }
+    .comment-rating {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 0.9em;
+        color: #FFD700;
+    }
+    .comment-replies {
+        margin-top: 5px;
+        padding-left: 20px;
+        border-left: 2px solid #007bff;
+    }
+    .comment-reply {
+        margin-bottom: 5px;
+        font-size: 0.9em;
+        color: #555;
+    }
 </style>
 
 <div class="home-container">
@@ -653,11 +733,48 @@
                                 <button class="product-action-button" onclick="showAddToCartConfirmModal(event, '{{ product.id }}', '{{ product.name }}')">
                                     <i class="fas fa-cart-plus"></i> Add to Cart
                                 </button>
+                                <!-- Star Rating and Feedback -->
+                                <div class="product-rating-section" data-product-id="{{ product.id }}">
+                                    <div class="star-rating">
+                                        {% for i in range(1,6) %}
+                                        <span class="star" data-value="{{ i }}" data-product-id="{{ product.id }}">&#9733;</span>
+                                        {% endfor %}
+                                    </div>
+                                    <form class="feedback-form" id="feedback-form-{{ product.id }}" style="display:none;">
+                                        <textarea name="feedback" placeholder="Write your feedback..." required></textarea>
+                                        <button type="submit">Submit Feedback</button>
+                                    </form>
+                                </div>
                             {% elif not current_user.is_authenticated %}
                                 <a href="{{ url_for('signin.signin') }}" class="product-action-button outline" onclick="event.stopPropagation();">
                                     Sign in to Buy
                                 </a>
                             {% endif %}
+                        </div>
+                        <!-- Comments and Replies Section -->
+                        <div class="product-comments-section" data-product-id="{{ product.id }}">
+                            <h6>Feedback & Replies</h6>
+                            {% for comment in product.comments %}
+                                <div class="product-comment" data-review-id="{{ comment.id }}">
+                                    <strong>{{ comment.buyer.username }}</strong>:
+                                    <span class="comment-rating">{% for i in range(comment.rating) %}&#9733;{% endfor %}</span>
+                                    <p>{{ comment.text }}</p>
+                                    <div class="comment-replies">
+                                        {% for reply in comment.replies %}
+                                            <div class="comment-reply">
+                                                <strong>{{ reply.farmer.username }}</strong> (Farmer):
+                                                <span>{{ reply.text }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% if current_user.is_authenticated and current_user.role == 'Farmer' and product.farmer_id == current_user.id %}
+                                    <form class="reply-form" data-review-id="{{ comment.id }}" onsubmit="return false;" style="margin-top:5px;">
+                                        <input type="text" name="reply" placeholder="Reply to this feedback..." required style="width:70%;">
+                                        <button type="submit">Reply</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -766,6 +883,115 @@ function showAddToCartConfirmModal(event, productId, productName) {
 function hideAddToCartConfirmModal() {
     const modal = document.getElementById('addToCartConfirmModal');
     modal.classList.remove('show');
+}
+
+// Event delegation for star rating and feedback form submission
+document.addEventListener('DOMContentLoaded', function() {
+    // Star rating click handler
+    document.querySelectorAll('.star-rating .star').forEach(function(star) {
+        star.addEventListener('click', function(event) {
+            event.stopPropagation();
+            const productId = this.getAttribute('data-product-id');
+            const rating = this.getAttribute('data-value');
+            // Highlight stars
+            const stars = document.querySelectorAll(`.star-rating [data-product-id='${productId}']`);
+            stars.forEach((s, idx) => {
+                s.style.color = (idx < rating) ? '#FFD700' : '#ccc';
+            });
+            // Show feedback form
+            const form = document.getElementById(`feedback-form-${productId}`);
+            form.style.display = 'block';
+            form.dataset.rating = rating;
+        });
+    });
+    // Feedback form submit handler (AJAX)
+    document.querySelectorAll('.feedback-form').forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const productId = this.id.replace('feedback-form-', '');
+            const feedback = this.querySelector('textarea').value;
+            const rating = this.dataset.rating;
+            fetch(`/products/review/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ rating: rating, feedback: feedback })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Thank you for your feedback!');
+                    this.reset();
+                    this.style.display = 'none';
+                    // Optionally reload comments
+                    loadComments(productId);
+                } else {
+                    alert(data.error || 'Failed to submit feedback.');
+                }
+            })
+            .catch(() => alert('Error submitting feedback.'));
+        });
+    });
+    // Load comments for each product
+    document.querySelectorAll('.product-comments-section').forEach(function(section) {
+        const productId = section.closest('.product-card').querySelector('.star').getAttribute('data-product-id');
+        loadComments(productId);
+    });
+    // Reply form submit handler (AJAX)
+    document.querySelectorAll('.reply-form').forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const reviewId = this.getAttribute('data-review-id');
+            const reply = this.querySelector('input[name="reply"]').value;
+            fetch(`/products/reply/${reviewId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reply: reply })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Reply submitted!');
+                    this.reset();
+                    // Optionally reload comments
+                    const productId = this.closest('.product-comments-section').getAttribute('data-product-id');
+                    loadComments(productId);
+                } else {
+                    alert(data.error || 'Failed to submit reply.');
+                }
+            })
+            .catch(() => alert('Error submitting reply.'));
+        });
+    });
+});
+function loadComments(productId) {
+    fetch(`/products/reviews/${productId}`)
+        .then(response => response.json())
+        .then(comments => {
+            const section = document.querySelector(`.product-card [data-product-id='${productId}']`).closest('.product-card').querySelector('.product-comments-section');
+            let html = '<h6>Feedback & Replies</h6>';
+            if (comments.length === 0) {
+                html += '<p>No feedback yet.</p>';
+            } else {
+                comments.forEach(comment => {
+                    html += `<div class='product-comment'><strong>${comment.buyer.username}</strong>:`;
+                    html += `<span class='comment-rating'>${'&#9733;'.repeat(comment.rating)}</span>`;
+                    html += `<p>${comment.text}</p>`;
+                    if (comment.replies && comment.replies.length > 0) {
+                        html += `<div class='comment-replies'>`;
+                        comment.replies.forEach(reply => {
+                            html += `<div class='comment-reply'><strong>${reply.farmer.username}</strong> (Farmer): <span>${reply.text}</span></div>`;
+                        });
+                        html += `</div>`;
+                    }
+                    html += `</div>`;
+                });
+            }
+            section.innerHTML = html;
+        });
 }
 </script>
 {% endblock %}

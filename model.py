@@ -24,6 +24,7 @@ class User(UserMixin, db.Model):
     # Relationships
     products = db.relationship('Product', backref='farmer', lazy=True)
     reviews_given = db.relationship('Review', backref='reviewer', lazy=True) # Reviews given by this user
+    replies_given = db.relationship('Reply', backref='farmer', lazy=True) # Replies given by this user
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -78,8 +79,22 @@ class Review(db.Model):
     comment = db.Column(db.Text, nullable=True)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
+    # Relationship to fetch farmer replies to this review
+    replies = db.relationship('Reply', backref='review', lazy=True, cascade='all, delete-orphan')
+
     def __repr__(self):
         return f'<Review Product:{self.product_id} User:{self.user_id} Rating:{self.rating}>'
+
+class Reply(db.Model):
+    __tablename__ = 'replies'
+    id = db.Column(db.Integer, primary_key=True)
+    review_id = db.Column(db.Integer, db.ForeignKey('reviews.id'), nullable=False)
+    farmer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    reply_text = db.Column(db.Text, nullable=False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Reply Review:{self.review_id} Farmer:{self.farmer_id}>'
 
 @login_manager.user_loader
 def load_user(user_id):
