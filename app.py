@@ -18,6 +18,10 @@ login_manager.init_app(app)
 def welcome():
     return render_template('welcome.html')
 
+@app.route('/aboutus')
+def aboutus():
+    return render_template('aboutus.html')
+
 app.register_blueprint(register_bp, url_prefix='/register')
 app.register_blueprint(signin_bp, url_prefix='/signin')
 app.register_blueprint(home_bp, url_prefix='/home')

@@ -6,98 +6,231 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/welcome.css">
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
   <nav class="navbar">
     <a href="/" class="navbar-logo-link"> <img src="/static/img/logo.png" alt="Farmers-Market" class="navbar-logo"></a>
-    <a class="nav-button" href="{{ url_for('register.register') }}">Register</a>
-    <a class="nav-button" href="{{ url_for('signin.signin') }}">Sign In</a>
+    <div class="nav-buttons">
+      <a class="nav-button" href="{{ url_for('register.register') }}">Register</a>
+      <a class="nav-button" href="{{ url_for('signin.signin') }}">Sign In</a>
+    </div>
   </nav>
 
 <div class="hero">
-  <h1>
-    <span class="typewriter-text" id="typing"></span>
-  </h1>
-  <a href="{{ url_for('signin.signin') }}">
-    <button class="hero-sign-btn">Sign in</button>
-  </a>
-</div>
-
-
-  <div class="section fresh-section">
-    <div class="fresh-text">
-      <h2>Fresh</h2>
-      <p>We offer fresh food because we source directly from local farmers,
-          bringing you just-picked produce and artisanal goods bursting with 
-          flavor. Shop now to support our community and savor the freshest 
-          finds!</p>
-    </div>
-    <div class="fresh-image">
-      <img src="/static/img/fresh-mango.jpg" alt="Fresh products">
+  <div class="hero-content">
+    <h1>
+      <span class="typewriter-text" id="typing"></span>
+    </h1>
+    <div class="hero-buttons">
+      <a href="{{ url_for('signin.signin') }}">
+        <button class="hero-sign-btn">Sign in</button>
+      </a>
+      <a href="#features" class="scroll-down">
+        <span>Explore More</span>
+        <i class="fas fa-chevron-down"></i>
+      </a>
     </div>
   </div>
+</div>
 
-  <div class="section local-section">
-    <div class="local-text">
-      <h2>Local</h2>
-      <p>we partner with local farmers to deliver just-harvested produce 
-        and handcrafted goods straight to you. Shop today to enjoy vibrant,
-        community-grown flavors!</p>
+<div id="features" class="features">
+  <div class="feature-card">
+    <div class="feature-icon">
+      <i class="fas fa-truck"></i>
     </div>
-    <div class="local-image">
-      <img src="/static/img/local.jpg" alt="local">
+    <h3>Fast Delivery</h3>
+    <p>Fresh products delivered to your door within 24 hours</p>
+  </div>
+  
+  <div class="feature-card">
+    <div class="feature-icon">
+      <i class="fas fa-seedling"></i>
+    </div>
+    <h3>100% Organic</h3>
+    <p>Certified organic produce from local farms</p>
+  </div>
+  
+  <div class="feature-card">
+    <div class="feature-icon">
+      <i class="fas fa-hand-holding-usd"></i>
+    </div>
+    <h3>Fair Prices</h3>
+    <p>Direct from farmers means better prices for you</p>
+  </div>
+</div>
+
+<div class="section fresh-section">
+  <div class="fresh-text">
+    <h2>Fresh</h2>
+    <p>We offer fresh food because we source directly from local farmers,
+        bringing you just-picked produce and artisanal goods bursting with 
+        flavor. Shop now to support our community and savor the freshest 
+        finds!</p>
+    <a href="#" class="section-link">View Fresh Products <i class="fas fa-arrow-right"></i></a>
+  </div>
+  <div class="fresh-image">
+    <img src="/static/img/fresh-mango.jpg" alt="Fresh products">
+  </div>
+</div>
+
+<div class="section local-section">
+  <div class="local-text">
+    <h2>Local</h2>
+    <p>we partner with local farmers to deliver just-harvested produce 
+      and handcrafted goods straight to you. Shop today to enjoy vibrant,
+      community-grown flavors!</p>
+    <a href="#" class="section-link">Meet Our Farmers <i class="fas fa-arrow-right"></i></a>
+  </div>
+  <div class="local-image">
+    <img src="/static/img/local.jpg" alt="local">
+  </div>
+</div>
+
+<div class="section organic-section">
+  <div class="organic-text">
+    <h2>Organic</h2>
+    <p>We offer fresh food because our organic produce and artisanal goods 
+        are grown with care by local farmers, free from synthetic pesticides
+        and full of natural flavor. Shop now to savor wholesome, 
+        community-supported goodness!</p>
+    <a href="#" class="section-link">Learn About Our Standards <i class="fas fa-arrow-right"></i></a>
+  </div>
+  <div class="organic-image">
+    <img src="/static/img/organic.jpg" alt="Organic">
+  </div>
+</div>
+
+<div class="testimonials">
+  <h2>What Our Customers Say</h2>
+  <div class="testimonial-container">
+    <div class="testimonial">
+      <div class="testimonial-content">
+        <i class="fas fa-quote-left"></i>
+        <p>The freshest produce I've ever had delivered! The tomatoes tasted like they were picked just hours before.</p>
+        <div class="testimonial-author">
+          <strong>Sarah J.</strong>
+          <span>Regular customer for 2 years</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="testimonial">
+      <div class="testimonial-content">
+        <i class="fas fa-quote-left"></i>
+        <p>I love knowing exactly which farm my food comes from. Supporting local farmers has never been easier!</p>
+        <div class="testimonial-author">
+          <strong>Michael T.</strong>
+          <span>New customer</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-content">
+    <div class="footer-logo">
+      <img src="/static/img/logo.png" alt="Farmers Market">
+      <p>Bringing farm-fresh goodness to your table since 2010</p>
+    </div>
+    
+    <div class="footer-links">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="{{ url_for ('aboutus') }}">About Us</a></li>
+        <li><a href="#">Our Farmers</a></li>
+        <li><a href="#">Delivery Areas</a></li>
+        <li><a href="#">Sustainability</a></li>
+      </ul>
+    </div>
+    
+    <div class="footer-contact">
+      <h4>Contact Us</h4>
+      <ul>
+        <li><i class="fas fa-map-marker-alt"></i> 123 Farm Road, Countryside</li>
+        <li><i class="fas fa-phone"></i> (123) 456-7890</li>
+        <li><i class="fas fa-envelope"></i> info@farmersmarket.com</li>
+      </ul>
+    </div>
+    
+    <div class="footer-social">
+      <h4>Follow Us</h4>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-pinterest"></i></a>
+      </div>
+      <div class="newsletter">
+        <input type="email" placeholder="Your email address">
+        <button>Subscribe</button>
+      </div>
     </div>
   </div>
   
-
-  <div class="section organic-section">
-    <div class="organic-text">
-      <h2>Organic</h2>
-      <p>We offer fresh food because our organic produce and artisanal goods 
-          are grown with care by local farmers, free from synthetic pesticides
-          and full of natural flavor. Shop now to savor wholesome, 
-          community-supported goodness!</p>
-    </div>
-    <div class="organic-image">
-      <img src="/static/img/organic.jpg" alt="Organic">
+  <div class="footer-bottom">
+    &copy; 2025 Farmers Market. All rights reserved.
+    <div class="footer-legal">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
     </div>
   </div>
-    
- 
-  <footer>
-    &copy; 2025 Farmers Market. All rights reserved.
-  </footer>
+</footer>
 
-  <script>
-    const texts = ["Welcome to Farmers Market.", "Where you find Fresh and", "High Quality local products."];
-    const typingElement = document.getElementById("typing");
-    let textIndex = 0;
-    let charIndex = 0;
-    let typing = true;
+<script>
+  // Typewriter effect
+  const texts = ["Welcome to Farmers Market.", "Where you find Fresh and", "High Quality local products."];
+  const typingElement = document.getElementById("typing");
+  let textIndex = 0;
+  let charIndex = 0;
+  let typing = true;
 
-    function typeLoop() {
-        if (typing) {
-            if (charIndex < texts[textIndex].length) {
-                typingElement.textContent += texts[textIndex][charIndex++];
-                setTimeout(typeLoop, 100);
-            } else {
-                typing = false;
-                setTimeout(typeLoop, 1700); // Pause before erasing
-            }
-        } else {
-            if (charIndex > 0) {
-                typingElement.textContent = texts[textIndex].substring(0, --charIndex);
-                setTimeout(typeLoop, 50);
-            } else {
-                typing = true;
-                textIndex = (textIndex + 1) % texts.length;
-                setTimeout(typeLoop, 400); // Pause before typing next
-            }
-        }
-    }
-    typeLoop();
-  </script>
+  function typeLoop() {
+      if (typing) {
+          if (charIndex < texts[textIndex].length) {
+              typingElement.textContent += texts[textIndex][charIndex++];
+              setTimeout(typeLoop, 100);
+          } else {
+              typing = false;
+              setTimeout(typeLoop, 1700);
+          }
+      } else {
+          if (charIndex > 0) {
+              typingElement.textContent = texts[textIndex].substring(0, --charIndex);
+              setTimeout(typeLoop, 50);
+          } else {
+              typing = true;
+              textIndex = (textIndex + 1) % texts.length;
+              setTimeout(typeLoop, 400);
+          }
+      }
+  }
+  typeLoop();
+  
+  // Smooth scrolling
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.querySelector(this.getAttribute('href')).scrollIntoView({
+        behavior: 'smooth'
+      });
+    });
+  });
+  
+  // Section animations on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  document.querySelectorAll('.section').forEach(section => {
+    observer.observe(section);
+  });
+</script>
 </body>
 </html>
