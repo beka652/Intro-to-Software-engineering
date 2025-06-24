@@ -171,6 +171,24 @@
         font-size: 1.1em;
     }
 
+    /* Star Rating Styling */
+    .star-rating {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+
+    .star-rating i {
+        color: #ffc107; /* Bootstrap gold color */
+        font-size: 1.2em;
+    }
+
+    .rating-text {
+        font-size: 0.9em;
+        color: #555;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .header-section {
@@ -216,6 +234,22 @@
                     <strong>Price:</strong> ${{ "%.2f"|format(product.price) }}<br>
                     <strong>Quantity Available:</strong> {{ product.quantity }}
                 </div>
+
+                <!-- Star Rating (read-only for all users) -->
+                <div class="star-rating" data-product-id="{{ product.id }}">
+                    {% set avg = product.average_rating %}
+                    {% for i in range(1, 6) %}
+                        {% if avg >= i %}
+                            <i class="fa-solid fa-star filled-star"></i>
+                        {% elif avg >= i - 0.5 %}
+                            <i class="fa-solid fa-star-half-stroke half-star"></i>
+                        {% else %}
+                            <i class="fa-regular fa-star empty-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="rating-text">{{ avg }}/5 ({{ product.total_reviews }})</span>
+                </div>
+
                 <div class="button-group">
                     <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="button button-warning">Edit</a>
                     <button class="button button-danger" onclick="deleteProduct('{{ product.id }}')">Delete</button>

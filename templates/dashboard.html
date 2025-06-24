@@ -440,6 +440,20 @@
                     <strong>Quantity Available:</strong> {{ product.quantity }}<br>
                     <strong>Added:</strong> {{ product.created_at.strftime('%Y-%m-%d') }}
                 </div>
+                <!-- Star Rating (read-only for farmers) -->
+                <div class="star-rating" data-product-id="{{ product.id }}">
+                    {% set avg = product.average_rating %}
+                    {% for i in range(1, 6) %}
+                        {% if avg >= i %}
+                            <i class="fa-solid fa-star filled-star"></i>
+                        {% elif avg >= i - 0.5 %}
+                            <i class="fa-solid fa-star-half-stroke half-star"></i>
+                        {% else %}
+                            <i class="fa-regular fa-star empty-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="rating-text">{{ avg }}/5 ({{ product.total_reviews }})</span>
+                </div>
                 <div class="button-group">
                     <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="button button-warning">
                         <i class="fas fa-edit"></i> Edit
@@ -512,5 +526,26 @@ function confirmDeleteProduct() {
         });
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.star-rating').forEach(function(ratingDiv) {
+        const stars = ratingDiv.querySelectorAll('i');
+        stars.forEach(function(star, idx) {
+            star.addEventListener('click', function() {
+                // Fill all stars up to the clicked one
+                stars.forEach((s, i) => {
+                    if (i <= idx) {
+                        s.classList.remove('fa-regular');
+                        s.classList.add('fa-solid');
+                    } else {
+                        s.classList.remove('fa-solid');
+                        s.classList.add('fa-regular');
+                    }
+                });
+                // Optionally: send rating to server here using fetch/AJAX
+            });
+        });
+    });
+});
 </script>
 {% endblock %}

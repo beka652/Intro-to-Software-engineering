@@ -21,6 +21,29 @@
             padding: 2rem 0;
             background-color: #f8f9fa;
         }
+        /* Star Rating Styles */
+        .star-rating {
+            font-size: 1.2em; /* Adjust size as needed */
+            color: #ffc107; /* Yellow color for stars */
+            display: flex;
+            align-items: center;
+        }
+        .star-rating .fas, .star-rating .far {
+            margin-right: 2px; /* Space between stars */
+        }
+        .star-rating .filled-star {
+            color: #ffc107; /* Full star color */
+        }
+        .star-rating .half-star {
+            color: #ffc107; /* Half star color (same as full for consistency) */
+        }
+        .star-rating .empty-star {
+            color: #e0e0e0; /* Lighter color for empty stars */
+        }
+        .star-rating .rating-text {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>
@@ -66,7 +89,7 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="#">Profile</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('signin.signin') }}">Sign Out</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('signin.logout') }}">Sign Out</a></li>
                             </ul>
                         </li>
                     {% else %}
