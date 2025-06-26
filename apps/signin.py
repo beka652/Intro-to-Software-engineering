@@ -1,5 +1,5 @@
-from flask import Blueprint, redirect, render_template, request, url_for, flash
-from flask_login import login_user
+from flask import Blueprint, redirect, render_template, request, url_for, flash, session
+from flask_login import login_user, logout_user
 from werkzeug.security import check_password_hash
 from model import User
 
@@ -22,13 +22,22 @@ def signin_authentication():
 
     if user and check_password_hash(user.password_hash, password):
         login_user(user)
+        session['role'] = user.role  # Store role in session
         flash(f'Welcome back, {username}!', 'success')
 
-        # Redirect based on user role
-        if user.role == 'Farmer':
-            return redirect('/dashboard')  # Redirect farmers to dashboard
+        # Normalize role to title case for redirect logic
+        role = user.role.title() if user.role else ''
+        if role == 'Farmer':
+            return redirect(url_for('dashboard.dashboard'))  # Redirect farmers to dashboard
         else:
-            return redirect('/home')  # Redirect buyers to home page
+            return redirect(url_for('home.home'))  # Redirect buyers to home page
     else:
         flash('Invalid username or password!', 'danger')
         return redirect(url_for('signin.signin'))
+
+@signin_bp.route('/logout')
+def logout():
+    logout_user()
+    session.clear()  # Clear all session data, including role
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('signin.signin'))

@@ -1,151 +1,160 @@
-{% extends "base.html" %}
-
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Register</h3>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/register.css">
+</head>
+<body>
+    <div class="content-box">
+        <h2>Register</h2>
+        <!-- Message container for errors/success -->
+        <div id="messageContainer" class="hidden"></div>
+        <!-- The registration form -->
+        <form id="registerForm" method="POST" action="{{ url_for('register.register_authentication') }}" enctype="multipart/form-data">
+            <div class="form-section">
+                <label for="email">Email address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-section">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-section">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-section">
+                <label class="radio-group">Register as:</label>
+                <div class="radio-item">
+                    <input type="radio" id="roleFarmer" name="userRole" value="farmer">
+                    <label for="roleFarmer">Farmer</label>
                 </div>
-                <div class="card-body">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }}">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    
-                    <form action="{{ url_for('register.register_authentication') }}" method="POST" enctype="multipart/form-data" id="registerForm">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required value="{{ form_data.username if form_data else '' }}">
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required value="{{ form_data.email if form_data else '' }}">
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">I am a:</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="userRole" id="farmerRole" value="Farmer" required {% if form_data and form_data.role == 'Farmer' %}checked{% endif %}>
-                                <label class="form-check-label" for="farmerRole">
-                                    Farmer
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="userRole" id="buyerRole" value="Customer" required {% if form_data and form_data.role == 'Customer' %}checked{% endif %}>
-                                <label class="form-check-label" for="buyerRole">
-                                    Buyer
-                                </label>
-                            </div>
-                        </div>
-
-                        <div id="farmerFields" style="display: none;">
-                            <div class="mb-3">
-                                <label for="phoneNumber" class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" value="{{ form_data.phone if form_data else '' }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" id="city" name="city" value="{{ form_data.city if form_data else '' }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="subCity" class="form-label">Sub City</label>
-                                <input type="text" class="form-control" id="subCity" name="subCity" value="{{ form_data.subcity if form_data else '' }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="idPicture" class="form-label">ID Picture</label>
-                                <input type="file" class="form-control" id="idPicture" name="idPicture" accept="image/*">
-                            </div>
-                            <div class="mb-3">
-                                <label for="facePicture" class="form-label">Face Picture</label>
-                                <input type="file" class="form-control" id="facePicture" name="facePicture" accept="image/*">
-                            </div>
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Sign Up</button>
-                        </div>
-                    </form>
+                <div class="radio-item">
+                    <input type="radio" id="roleBuyer" name="userRole" value="buyer">
+                    <label for="roleBuyer">Buyer</label>
                 </div>
             </div>
-        </div>
+
+            <!-- Farmer specific fields -->
+            <div id="farmerFields" class="form-section">
+                <div class="form-section">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber">
+                </div>
+                <div class="form-section">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city">
+                </div>
+                <div class="form-section">
+                    <label for="subCity">Sub City</label>
+                    <input type="text" id="subCity" name="subCity">
+                </div>
+                <div class="form-section">
+                    <label for="idPicture">Upload ID Picture</label>
+                    <input type="file" id="idPicture" name="idPicture" accept="image/*">
+                    <p class="file-input-name" id="idPictureName">No file chosen</p>
+                    <div id="idPictureUploadProgress" class="progress-container hidden">
+                        <div class="progress-bar"></div>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <label for="facePicture">Upload Face Picture</label>
+                    <input type="file" id="facePicture" name="facePicture" accept="image/*">
+                    <p class="file-input-name" id="facePictureName">No file chosen</p>
+                    <div id="facePictureUploadProgress" class="progress-container hidden">
+                        <div class="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <button type="submit">
+                    Register
+                </button>
+            </div>
+        </form>
+        <p class="link-text">
+            Already have an account?
+            <a href="{{ url_for('signin.signin') }}">Login here</a>
+        </p>
     </div>
-</div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const farmerFields = document.getElementById('farmerFields');
-    const farmerRole = document.getElementById('farmerRole');
-    const buyerRole = document.getElementById('buyerRole');
-    const form = document.getElementById('registerForm');
+    <script>
+        // Get the message container element
+        const messageContainer = document.getElementById('messageContainer');
 
-    // Function to toggle farmer fields
-    function toggleFarmerFields() {
-        const isFarmer = farmerRole.checked;
-        farmerFields.style.display = isFarmer ? 'block' : 'none';
-        
-        // Set required attributes for farmer fields
-        const farmerInputs = farmerFields.querySelectorAll('input');
-        farmerInputs.forEach(input => {
-            if (input.type !== 'file') {
-                input.required = isFarmer;
+        // Function to display messages (replaces showModal)
+        function displayMessage(message, type) {
+            messageContainer.textContent = message;
+            messageContainer.classList.remove('hidden', 'message-error', 'message-success');
+            if (type === 'error') {
+                messageContainer.classList.add('message-error');
+            } else if (type === 'success') {
+                messageContainer.classList.add('message-success');
             }
+            // Optional: You can add a timeout here to hide the message after a few seconds
+            // setTimeout(() => {
+            //     messageContainer.classList.add('hidden');
+            // }, 5000); // Hide after 5 seconds
+        }
+
+        // Ensure message container is hidden on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            messageContainer.classList.add('hidden');
+            // Initial check for farmer fields visibility
+            toggleFarmerFields();
         });
-    }
 
-    // Initial check for role selection
-    if (farmerRole.checked) {
-        toggleFarmerFields();
-    }
-
-    // Add event listeners for role selection
-    farmerRole.addEventListener('change', toggleFarmerFields);
-    buyerRole.addEventListener('change', toggleFarmerFields);
-
-    // Form submission validation
-    form.addEventListener('submit', function(e) {
-        const selectedRole = document.querySelector('input[name="userRole"]:checked');
-        
-        if (!selectedRole) {
-            e.preventDefault();
-            alert('Please select whether you are a Farmer or Buyer');
-            return;
-        }
-
-        if (selectedRole.value === 'Farmer') {
-            const farmerInputs = farmerFields.querySelectorAll('input[required]');
-            let isValid = true;
+        // Function to toggle visibility of farmer-specific fields
+        function toggleFarmerFields() {
+            const farmerRoleRadio = document.getElementById('roleFarmer');
+            const farmerFieldsDiv = document.getElementById('farmerFields');
             
-            farmerInputs.forEach(input => {
-                if (!input.value) {
-                    isValid = false;
-                }
-            });
+            // Get references to the specific fields you want to toggle
+            const phoneNumberInput = document.getElementById('phoneNumber');
+            const cityInput = document.getElementById('city');
+            const subCityInput = document.getElementById('subCity');
+            const idPictureInput = document.getElementById('idPicture');
+            const facePictureInput = document.getElementById('facePicture');
 
-            if (!isValid) {
-                e.preventDefault();
-                alert('Please fill in all required farmer information');
-                return;
-            }
 
-            const idPicture = document.getElementById('idPicture');
-            const facePicture = document.getElementById('facePicture');
-            
-            if (!idPicture.files.length || !facePicture.files.length) {
-                e.preventDefault();
-                alert('Please upload both ID and face pictures');
-                return;
+            if (farmerRoleRadio.checked) {
+                farmerFieldsDiv.classList.remove('hidden');
+                // Make farmer-specific fields required when visible
+                phoneNumberInput.setAttribute('required', 'required');
+                cityInput.setAttribute('required', 'required');
+                subCityInput.setAttribute('required', 'required');
+                idPictureInput.setAttribute('required', 'required'); // Make file inputs required
+                facePictureInput.setAttribute('required', 'required');
+            } else {
+                farmerFieldsDiv.classList.add('hidden');
+                // Remove required attribute when hidden
+                phoneNumberInput.removeAttribute('required');
+                cityInput.removeAttribute('required');
+                subCityInput.removeAttribute('required');
+                idPictureInput.removeAttribute('required'); // Remove required from file inputs
+                facePictureInput.removeAttribute('required');
             }
         }
-    });
-});
-</script>
-{% endblock %}
+
+        // Add event listeners to role radio buttons
+        document.getElementById('roleFarmer').addEventListener('change', toggleFarmerFields);
+        document.getElementById('roleBuyer').addEventListener('change', toggleFarmerFields);
+
+        // Event listeners for file inputs to update displayed file name
+        document.getElementById('idPicture').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            document.getElementById('idPictureName').textContent = file ? `Selected: ${file.name}` : 'No file chosen';
+        });
+
+        document.getElementById('facePicture').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            document.getElementById('facePictureName').textContent = file ? `Selected: ${file.name}` : 'No file chosen';
+        });
+    </script>
+</body>
+</html>

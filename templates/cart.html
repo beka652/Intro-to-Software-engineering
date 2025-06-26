@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Cart</title>
+    <style>
+        .cart-item { border: 1px solid #eee; border-radius: 8px; margin: 20px 0; padding: 20px; }
+        .product-title { font-size: 1.3em; font-weight: bold; }
+        .review-block { margin: 10px 0 10px 20px; padding: 10px; background: #f9f9f9; border-radius: 6px; }
+        .reply-block { margin: 5px 0 5px 40px; padding: 8px; background: #e8f5e9; border-radius: 6px; }
+        .star { color: #FFD700; }
+    </style>
 </head>
 <body>
     <nav>
@@ -11,6 +18,32 @@
     <a href="{{ url_for('signin.signin') }}">Sign In</a> |
     <a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
     </nav>
-    <h1>Welcome to the Cart</h1>
+    <h1>Your Cart</h1>
+    {% if cart_items %}
+        {% for item in cart_items %}
+        <div class="cart-item">
+            <div class="product-title">{{ item.product.name }} (x{{ item.quantity }})</div>
+            <div><strong>Price:</strong> ${{ '%.2f'|format(item.product.price) }}</div>
+            <div><strong>Description:</strong> {{ item.product.description }}</div>
+            <div><strong>All Feedback & Replies:</strong></div>
+            {% for review in item.reviews %}
+                <div class="review-block">
+                    <span><strong>{{ review.reviewer.username }}</strong>:</span>
+                    <span>{% for i in range(review.rating) %}<span class="star">&#9733;</span>{% endfor %}</span>
+                    <div>{{ review.comment }}</div>
+                    {% for reply in review.replies %}
+                        <div class="reply-block">
+                            <strong>{{ reply.farmer.username }} (Farmer):</strong> {{ reply.reply_text }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="margin-left:20px; color:#888;">No feedback yet.</div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
 </body>
 </html>

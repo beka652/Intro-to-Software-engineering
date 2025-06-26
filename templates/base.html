@@ -21,14 +21,37 @@
             padding: 2rem 0;
             background-color: #f8f9fa;
         }
+        /* Star Rating Styles */
+        .star-rating {
+            font-size: 1.2em; /* Adjust size as needed */
+            color: #ffc107; /* Yellow color for stars */
+            display: flex;
+            align-items: center;
+        }
+        .star-rating .fas, .star-rating .far {
+            margin-right: 2px; /* Space between stars */
+        }
+        .star-rating .filled-star {
+            color: #ffc107; /* Full star color */
+        }
+        .star-rating .half-star {
+            color: #ffc107; /* Half star color (same as full for consistency) */
+        }
+        .star-rating .empty-star {
+            color: #e0e0e0; /* Lighter color for empty stars */
+        }
+        .star-rating .rating-text {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #61e266 !important;">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('home.home') }}">
-                <i class="fas fa-leaf text-success"></i> Farmers to Buyers
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Farmers Market Logo" style="height: 40px; vertical-align: middle;">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -66,7 +89,7 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="#">Profile</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('signin.signin') }}">Sign Out</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('signin.logout') }}">Sign Out</a></li>
                             </ul>
                         </li>
                     {% else %}
@@ -131,4 +154,4 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>

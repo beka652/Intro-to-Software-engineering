@@ -1,37 +1,177 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">Add New Product</h1>
+<style>
+    /* General Form Styling */
+    .product-form-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        font-family: "Inter", sans-serif; /* Using Inter font */
+    }
+
+    .form-heading {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 2.2em;
+        font-weight: 600;
+    }
+
+    .add-product-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #555;
+        font-size: 1.1em;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-file-input,
+    .form-select { /* Added .form-select */
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1em;
+        color: #333;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-file-input:focus,
+    .form-select:focus { /* Added .form-select */
+        border-color: #4CAF50; /* Green focus border */
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        outline: none;
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 90px;
+    }
+
+    .form-file-input {
+        padding-top: 10px; /* Adjust padding for file input */
+    }
+
+    /* Button Styling */
+    .form-actions {
+        display: flex;
+        justify-content: flex-start; /* Align buttons to the left */
+        gap: 15px; /* Space between buttons */
+        margin-top: 30px;
+    }
+
+    .button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: 600;
+        text-decoration: none; /* For the cancel link */
+        text-align: center;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        display: inline-block; /* Ensure it behaves like a block for padding/sizing */
+    }
+
+    .button-primary {
+        background-color: #4CAF50; /* Primary green */
+        color: white;
+    }
+
+    .button-primary:hover {
+        background-color: #45a049; /* Darker green on hover */
+        transform: translateY(-2px);
+    }
+
+    .button-secondary {
+        background-color: #6c757d; /* Grey */
+        color: white;
+    }
+
+    .button-secondary:hover {
+        background-color: #5a6268; /* Darker grey on hover */
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="product-form-container">
+    <h1 class="form-heading">Add New Product</h1>
     
-    <form method="POST" enctype="multipart/form-data">
-        <div class="mb-3">
+    <form method="POST" enctype="multipart/form-data" class="add-product-form">
+        <div class="form-group">
             <label for="name" class="form-label">Product Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
+            <input type="text" class="form-input" id="name" name="name" required>
         </div>
         
-        <div class="mb-3">
+        <div class="form-group">
             <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+            <textarea class="form-textarea" id="description" name="description" rows="3" required></textarea>
         </div>
         
-        <div class="mb-3">
+        <div class="form-group">
             <label for="price" class="form-label">Price ($)</label>
-            <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+            <input type="number" class="form-input" id="price" name="price" step="0.01" min="0" required>
         </div>
         
-        <div class="mb-3">
+        <div class="form-group">
             <label for="quantity" class="form-label">Quantity Available</label>
-            <input type="number" class="form-control" id="quantity" name="quantity" min="0" required>
+            <input type="number" class="form-input" id="quantity" name="quantity" min="0" required>
+        </div>
+
+        <div class="form-group">
+            <label for="unit" class="form-label">Measurement Unit</label>
+            <select class="form-select" id="unit" name="unit" required>
+                <option value="">Select unit</option>
+                <option value="Kg">Kg</option>
+                <option value="Unit">Unit</option>
+                <option value="Litre">Litre</option>
+                <option value="Pack">Pack</option>
+                <option value="Box">Box</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="text" class="form-input" id="unit_other" name="unit_other" placeholder="Enter custom unit" style="display:none; margin-top:8px;">
         </div>
         
-        <div class="mb-3">
+        <div class="form-group">
             <label for="image" class="form-label">Product Image</label>
-            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+            <input type="file" class="form-file-input" id="image" name="image" accept="image/*">
         </div>
         
-        <button type="submit" class="btn btn-primary">Add Product</button>
-        <a href="{{ url_for('products.view_products') }}" class="btn btn-secondary">Cancel</a>
+        <div class="form-actions">
+            <button type="submit" class="button button-primary">Add Product</button>
+            <a href="{{ url_for('products.view_products') }}" class="button button-secondary">Cancel</a>
+        </div>
     </form>
 </div>
-{% endblock %} 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var unitSelect = document.getElementById('unit');
+    var unitOther = document.getElementById('unit_other');
+    if(unitSelect && unitOther) {
+        function toggleOther() {
+            if(unitSelect.value === 'Other') {
+                unitOther.style.display = 'block';
+                unitOther.required = true;
+            } else {
+                unitOther.style.display = 'none';
+                unitOther.required = false;
+            }
+        }
+        unitSelect.addEventListener('change', toggleOther);
+        toggleOther();
+    }
+});
+</script>
+{% endblock %}

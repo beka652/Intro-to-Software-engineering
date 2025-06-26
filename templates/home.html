@@ -1,144 +1,1201 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <h1 class="display-4 mb-4">Welcome to Farmers to Buyers</h1>
-            <p class="lead mb-4">Your one-stop platform for connecting farmers directly with buyers</p>
-            
-            {% if current_user.is_authenticated %}
-                {% if current_user.role == 'Farmer' %}
-                    <div class="alert alert-info">
-                        <h4 class="alert-heading">Welcome, {{ current_user.username }}!</h4>
-                        <p>As a farmer, you can manage your products and reach potential buyers directly.</p>
-                        <hr>
-                        <p class="mb-0">
-                            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
-                        </p>
-                    </div>
-                {% elif current_user.role == 'Customer' %}
-                    <div class="alert alert-info">
-                        <h4 class="alert-heading">Welcome, {{ current_user.username }}!</h4>
-                        <p>Browse through fresh products directly from local farmers.</p>
-                    </div>
-                {% endif %}
-            {% else %}
-                <div class="row mt-5">
-                    <div class="col-md-6">
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <h3 class="card-title">For Farmers</h3>
-                                <p class="card-text">Sell your products directly to customers and grow your business.</p>
-                                <a href="{{ url_for('register.register') }}" class="btn btn-success">Register as Farmer</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <h3 class="card-title">For Buyers</h3>
-                                <p class="card-text">Buy fresh products directly from local farmers.</p>
-                                <a href="{{ url_for('register.register') }}" class="btn btn-primary">Register as Buyer</a>
-                            </div>
-                        </div>
-                    </div>
+<style>
+    /* General Container */
+    .home-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 30px;
+        font-family: "Inter", sans-serif;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    }
+
+    /* Main Hero Section (for fade-on-scroll - now timed fade) */
+    .main-hero-section {
+        transition: opacity 0.5s ease-out, visibility 0.5s ease-out, height 0.5s ease-out, margin 0.5s ease-out, padding 0.5s ease-out;
+        overflow: hidden; /* Hide overflow during height transition */
+    }
+    .main-hero-section.fade-out {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none; /* Make it unclickable when hidden */
+        height: 0; /* Collapse height */
+        margin-bottom: 0 !important; /* Remove margin */
+        padding-top: 0 !important; /* Remove padding */
+        padding-bottom: 0 !important; /* Remove padding */
+    }
+
+    .main-heading {
+        text-align: center;
+        font-size: 3.5em;
+        font-weight: 800;
+        color: #333;
+        margin-bottom: 20px;
+        line-height: 1.2;
+    }
+
+    .sub-heading {
+        text-align: center;
+        font-size: 1.4em;
+        color: #555;
+        margin-bottom: 40px;
+        line-height: 1.6;
+    }
+
+    /* Authenticated User Alerts (Welcome Messages) */
+    .welcome-alert {
+        background-color: #e0f7fa; /* Light blue */
+        border-left: 5px solid #00acc1; /* Teal border */
+        padding: 25px;
+        border-radius: 8px;
+        color: #004d60;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        margin-bottom: 40px;
+        transition: opacity 1s ease-out, visibility 1s ease-out, height 1s ease-out, margin 1s ease-out, padding 1s ease-out; /* Added transitions */
+        overflow: hidden; /* Hide overflow during height transition */
+    }
+    .welcome-alert.fade-out {
+        opacity: 0;
+        visibility: hidden;
+        height: 0; /* Collapse height */
+        margin-bottom: 0 !important; /* Remove margin */
+        padding-top: 0 !important; /* Remove padding */
+        padding-bottom: 0 !important; /* Remove padding */
+    }
+
+
+    .welcome-alert .alert-heading {
+        font-size: 1.8em;
+        margin-bottom: 10px;
+        color: #007bff;
+    }
+
+    .welcome-alert p {
+        margin-bottom: 15px;
+        line-height: 1.6;
+    }
+
+    .welcome-alert .alert-separator {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        margin: 15px 0;
+    }
+
+    .welcome-alert .alert-button {
+        padding: 10px 20px;
+        background-color: #007bff; /* Primary blue for Buyer, success green for farmer */
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .welcome-alert .alert-button.farmer {
+        background-color: #28a745; /* Green for Farmer Dashboard */
+    }
+    .welcome-alert .alert-button.farmer:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+    }
+    .welcome-alert .alert-button.buyer {
+        background-color: #007bff; /* Blue for Products */
+    }
+     .welcome-alert .alert-button.buyer:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+
+
+    /* Role Cards (For Farmers/For Buyers) */
+    .role-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+        margin-bottom: 60px;
+    }
+
+    .role-card {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .role-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .role-card .card-title {
+        font-size: 1.8em;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .role-card .card-text {
+        font-size: 1em;
+        color: #666;
+        margin-bottom: 25px;
+        line-height: 1.6;
+    }
+
+    .role-card .button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .role-card .button-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .role-card .button-success:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+    }
+
+    .role-card .button-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .role-card .button-primary:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+
+
+    /* Products Section */
+    .products-section-heading {
+        text-align: center;
+        font-size: 2.5em;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 40px;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+    }
+
+    .product-card {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    /* New style for expanded card */
+    .product-card.expanded {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+
+    .product-card-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-bottom: 1px solid #eee;
+    }
+
+    .product-card-no-image {
+        width: 100%;
+        height: 200px;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid #eee;
+        color: #b0b0b0;
+    }
+
+    .product-card-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .product-card-title {
+        font-size: 1.6em;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    /* Product Description initial state (hidden) */
+    .product-card-description {
+        font-size: 0.95em;
+        color: #666;
+        margin-bottom: 15px;
+        line-height: 1.5;
+        max-height: 0; /* Initially hidden */
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin-bottom 0.3s ease-out;
+        flex-grow: 0; /* Don't grow when hidden */
+    }
+
+    /* Product Description expanded state */
+    .product-card.expanded .product-card-description {
+        max-height: 150px; /* Adjust as needed for content, ensure it's larger than typical description */
+        opacity: 1;
+        margin-bottom: 15px; /* Restore margin */
+        flex-grow: 1; /* Allow to grow when expanded */
+    }
+
+    .product-meta {
+        font-size: 0.85em;
+        color: #777;
+        margin-top: 15px; /* Added margin for spacing with description */
+    }
+
+    /* Farmer Info Styling */
+    .farmer-info-section {
+        margin-bottom: 10px;
+    }
+
+    .farmer-details {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px; /* Space between farmer details and other product meta */
+    }
+
+    .farmer-avatar {
+        width: 40px; /* Fixed size for avatar */
+        height: 40px;
+        border-radius: 50%; /* Make it round */
+        object-fit: cover;
+        margin-right: 10px;
+        border: 1px solid #eee;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .farmer-avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        color: #b0b0b0;
+        font-size: 1.8em; /* Size for the icon */
+    }
+
+    .farmer-name {
+        font-weight: 600;
+        color: #333;
+        font-size: 1em; /* Slightly larger for emphasis */
+    }
+
+    /* Farmer Phone Number initial state (hidden) */
+    .farmer-phone {
+        font-size: 0.9em;
+        color: #555;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    }
+
+    /* Farmer Phone Number expanded state */
+    .product-card.expanded .farmer-phone {
+        max-height: 50px; /* Sufficient height for phone number */
+        opacity: 1;
+    }
+
+
+    .product-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+
+    .product-price {
+        font-size: 1.5em;
+        font-weight: 700;
+        color: #007bff; /* Primary blue for price */
+    }
+
+    .product-action-button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.95em;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .product-action-button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+
+    .product-action-button.outline {
+        background-color: transparent;
+        color: #007bff;
+        border: 2px solid #007bff;
+    }
+
+    .product-action-button.outline:hover {
+        background-color: #e6f2ff; /* Light blue background on hover */
+        transform: translateY(-2px);
+    }
+
+    /* No Products Message */
+    .no-products-message {
+        text-align: center;
+        padding: 50px 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        color: #6c757d;
+        font-size: 1.1em;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .no-products-message i {
+        color: #b0b0b0;
+        margin-bottom: 15px;
+    }
+
+    .no-products-message h4 {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    /* Why Choose Us Section */
+    .why-choose-us-section {
+        margin-top: 60px;
+        margin-bottom: 40px;
+    }
+
+    .why-choose-us-heading {
+        text-align: center;
+        font-size: 2.5em;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 40px;
+    }
+
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+    }
+
+    .feature-card {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .feature-card i {
+        font-size: 3em;
+        margin-bottom: 20px;
+        color: #4CAF50; /* Default green for icons */
+    }
+    .feature-card i.text-primary { color: #007bff; }
+    .feature-card i.text-warning { color: #ffc107; }
+
+    .feature-card h4 {
+        font-size: 1.5em;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .feature-card p {
+        font-size: 0.95em;
+        color: #666;
+        line-height: 1.6;
+    }
+
+    /* Custom Message Box for Add to Cart Confirmation */
+    .custom-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .custom-modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .custom-modal-content {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        max-width: 400px;
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+    }
+
+    .custom-modal-overlay.show .custom-modal-content {
+        transform: translateY(0);
+    }
+
+    .custom-modal-content p {
+        margin-bottom: 25px;
+        font-size: 1.1em;
+        color: #333;
+    }
+
+    .custom-modal-actions .button {
+        padding: 10px 20px;
+        font-size: 1em;
+        font-weight: 600;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        border: none;
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .custom-modal-actions .button:hover {
+        background-color: #45a049;
+    }
+
+    /* Green Theme Adjustments */
+    .product-action-button,
+    .alert-button.farmer,
+    .button.button-success {
+        background-color: #61e266 !important;
+        color: #fff !important;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: background-color 0.2s;
+    }
+    .product-action-button:hover,
+    .alert-button.farmer:hover,
+    .button.button-success:hover {
+        background-color: #4ec24e !important;
+        color: #fff !important;
+    }
+    .button.button-primary {
+        background-color: #007bff;
+        color: #fff;
+    }
+    .button.button-primary:hover {
+        background-color: #0056b3;
+        color: #fff;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main-heading {
+            font-size: 2.5em;
+        }
+        .sub-heading {
+            font-size: 1.1em;
+        }
+        .welcome-alert {
+            padding: 20px;
+        }
+        .welcome-alert .alert-heading {
+            font-size: 1.5em;
+        }
+        .role-cards-grid, .product-grid, .feature-grid {
+            grid-template-columns: 1fr;
+        }
+        .products-section-heading, .why-choose-us-heading {
+            font-size: 2em;
+        }
+    }
+
+    /* Star Rating Styles */
+    .star-rating {
+        display: flex;
+        cursor: pointer;
+        user-select: none;
+    }
+    .star {
+        font-size: 1.5em;
+        color: #ccc;
+        transition: color 0.2s;
+    }
+    .star:hover,
+    .star:hover ~ .star {
+        color: #FFD700;
+    }
+
+    /* Feedback Form Styles */
+    .feedback-form {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+    }
+    .feedback-form textarea {
+        resize: none;
+        height: 60px;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+    .feedback-form button {
+        align-self: flex-start;
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: background-color 0.3s;
+    }
+    .feedback-form button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Comments Section Styles */
+    .product-comments-section {
+        margin-top: 15px;
+        border-top: 1px solid #eee;
+        padding-top: 10px;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+    .product-card.expanded .product-comments-section {
+        max-height: 1000px;
+        opacity: 1;
+    }
+
+    .product-feedback-section { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.3s, opacity 0.3s; }
+    .product-card.expanded .product-feedback-section { max-height: 1000px; opacity: 1; margin-top: 15px; }
+    .star-rating, .product-rating-section { display: none; }
+    .product-card.expanded .star-rating, .product-card.expanded .product-rating-section { display: block; }
+    .add-to-cart-quantity { display: none; margin-top: 10px; }
+    .add-to-cart-quantity input { width: 60px; padding: 5px; margin-right: 10px; }
+    .add-to-cart-quantity button { padding: 5px 15px; }
+
+    .add-to-cart-animated {
+        display: inline-block;
+        position: relative;
+        transition: width 0.3s, background 0.3s;
+        overflow: hidden;
+        vertical-align: middle;
+    }
+    .add-to-cart-animated input {
+        width: 0;
+        opacity: 0;
+        transition: width 0.3s, opacity 0.3s;
+        border: none;
+        outline: none;
+        padding: 0 0;
+        font-size: 1em;
+        background: transparent;
+    }
+    .add-to-cart-animated.expanded input {
+        width: 60px;
+        opacity: 1;
+        padding: 5px 10px;
+        background: #fff;
+        border: 1px solid #ccc;
+        margin-right: 8px;
+        border-radius: 4px;
+    }
+    .add-to-cart-animated .cart-btn-label {
+        display: inline-block;
+        transition: opacity 0.2s;
+    }
+    .add-to-cart-animated.expanded .cart-btn-label {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .add-to-cart-animated .cart-btn-confirm {
+        display: none;
+    }
+    .add-to-cart-animated.expanded .cart-btn-confirm {
+        display: inline-block;
+        background: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 12px;
+        margin-left: 2px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+    .add-to-cart-animated.expanded .cart-btn-confirm:hover {
+        background: #218838;
+    }
+</style>
+
+<div class="home-container">
+    <div class="main-hero-section"> {# New wrapper for fade-on-scroll #}
+        <h1 class="main-heading">Welcome to Farmers to Buyers</h1>
+        <p class="sub-heading">Your one-stop platform for connecting farmers directly with buyers</p>
+    </div>
+    
+    <div class="main-content-area"> {# This was the previous container #}
+        {% if current_user.is_authenticated %}
+            {% if current_user.role == 'Farmer' %}
+                <div class="welcome-alert">
+                    <h4 class="alert-heading">Welcome, {{ current_user.username }}!</h4>
+                    <p>As a farmer, you can manage your products and reach potential buyers directly.</p>
+                    <hr class="alert-separator">
+                    <p class="mb-0">
+                        <a href="{{ url_for('dashboard.dashboard') }}" class="alert-button farmer">Go to Dashboard</a>
+                    </p>
+                </div>
+            {% elif current_user.role == 'Buyer' %}
+                <div class="welcome-alert">
+                    <h4 class="alert-heading">Welcome, {{ current_user.username }}!</h4>
+                    <p>Browse through fresh products directly from local farmers.</p>
+                    <hr class="alert-separator">
                 </div>
             {% endif %}
-        </div>
+        {% else %}
+            <div class="role-cards-grid">
+                <div class="role-card">
+                    <h3 class="card-title">For Farmers</h3>
+                    <p class="card-text">Sell your products directly to customers and grow your business.</p>
+                    <a href="{{ url_for('register.register') }}" class="button button-success">Register as Farmer</a>
+                </div>
+                <div class="role-card">
+                    <h3 class="card-title">For Buyers</h3>
+                    <p class="card-text">Buy fresh products directly from local farmers.</p>
+                    <a href="{{ url_for('register.register') }}" class="button button-primary">Register as Buyer</a>
+                </div>
+            </div>
+        {% endif %}
     </div>
 
     <!-- Products Section -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <h2 class="text-center mb-4">Available Products</h2>
-            {% if products %}
-                <div class="row">
-                    {% for product in products %}
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm">
-                            {% if product.image_url %}
-                                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                            {% else %}
-                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                    <i class="fas fa-image fa-3x text-muted"></i>
-                                </div>
-                            {% endif %}
-                            <div class="card-body">
-                                <h5 class="card-title">{{ product.name }}</h5>
-                                <p class="card-text">{{ product.description }}</p>
-                                <div class="mb-2">
-                                    <small class="text-muted">
-                                        <i class="fas fa-user"></i> {{ product.farmer }}
-                                    </small>
-                                </div>
-                                <div class="mb-2">
-                                    <small class="text-muted">
-                                        <i class="fas fa-box"></i> Available: {{ product.quantity }} {{ product.unit }}
-                                    </small>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <span class="h5 mb-0 text-primary">${{ "%.2f"|format(product.price) }}</span>
-                                    {% if current_user.is_authenticated and current_user.role == 'Customer' %}
-                                        <button class="btn btn-primary">
-                                            <i class="fas fa-cart-plus"></i> Add to Cart
-                                        </button>
-                                    {% elif not current_user.is_authenticated %}
-                                        <a href="{{ url_for('signin.signin') }}" class="btn btn-outline-primary">
-                                            Sign in to Buy
-                                        </a>
+    <div class="products-section">
+        <h2 class="products-section-heading">Available Products</h2>
+        {% if products %}
+            <div class="product-grid">
+                {% for product in products %}
+                <div class="product-card" onclick="toggleProductExpansion(this, event)">
+                    {% if product.image_path %}
+                        {% set image_path = product.image_path.replace('\\', '/') %}
+                        <img src="{{ url_for('static', filename='uploads/' + image_path) }}" class="product-card-image" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="product-card-no-image">
+                            <i class="fas fa-image fa-3x"></i>
+                        </div>
+                    {% endif %}
+                    <div class="product-card-body">
+                        <h5 class="product-card-title">{{ product.name }}</h5>
+                        <p class="product-card-description">{{ product.description }}</p>
+                        <div class="product-meta">
+                            <div class="farmer-info-section">
+                                <div class="farmer-details">
+                                    {% if product.farmer.face_picture %}
+                                      {% set face_filename = product.farmer.face_picture.split('/')[-1].split('\\')[-1] %}
+                                      {% set face_url = url_for('static', filename='uploads/' + product.farmer.email + '/' + face_filename) %}
+                                      <img src="{{ face_url }}" class="farmer-avatar" alt="{{ product.farmer.username }}">
+                                    {% else %}
+                                    <div class="farmer-avatar-placeholder">
+                                        <i class="fas fa-user-circle"></i>
+                                    </div>
                                     {% endif %}
+                                    <span class="farmer-name">{{ product.farmer.username }}</span>
                                 </div>
+                                <div class="farmer-phone">
+                                    <small><i class="fas fa-phone"></i> Phone: {{ product.farmer.phone }}</small>
+                                </div>
+                            </div>
+                            <small>
+                                <i class="fas fa-box"></i> Available quantity: {{ product.quantity }} {{ product.unit or '' }}
+                            </small>
+                        </div>
+                        <div class="product-footer">
+                            <span class="product-price">
+                                ${{ "%.2f"|format(product.price) }} /{{ product.unit or '' }}
+                            </span>
+                            {% if current_user.is_authenticated and current_user.role == 'Buyer' %}
+                                <div class="add-to-cart-animated" id="add-to-cart-animated-{{ product.id }}">
+                                    <button class="product-action-button add-to-cart-btn" type="button" data-product-id="{{ product.id }}">
+                                        <span class="cart-btn-label"><i class="fas fa-cart-plus"></i> Add to Cart</span>
+                                    </button>
+                                </div>
+                            {% elif not current_user.is_authenticated %}
+                                <a href="{{ url_for('signin.signin') }}" class="product-action-button outline" onclick="event.stopPropagation();">
+                                    Sign in to Buy
+                                </a>
+                            {% endif %}
+                        </div>
+                        <div class="product-feedback-section">
+                            <div class="star-rating" style="display:none;">
+                                {% for i in range(1, 6) %}
+                                    <span class="star" data-product-id="{{ product.id }}" data-value="{{ i }}">&#9733;</span>
+                                {% endfor %}
+                            </div>
+                            <form class="feedback-form" id="feedback-form-{{ product.id }}" style="display:none; margin-top:10px;">
+                                <textarea placeholder="Leave your feedback..." required></textarea>
+                                <button type="submit">Submit</button>
+                            </form>
+                            <!-- Comments and Replies Section (already implemented) -->
+                            <div class="product-comments-section" data-product-id="{{ product.id }}">
+                                <h6>Feedback & Replies</h6>
+                                {% for comment in product.comments %}
+                                    <div class="product-comment" data-review-id="{{ comment.id }}">
+                                        <strong>{{ comment.buyer.username }}</strong>:
+                                        <span class="comment-rating">{% for i in range(comment.rating) %}&#9733;{% endfor %}</span>
+                                        <p>{{ comment.text }}</p>
+                                        <div class="comment-replies">
+                                            {% for reply in comment.replies %}
+                                                <div class="comment-reply">
+                                                    <strong>{{ reply.farmer.username }}</strong> (Farmer):
+                                                    <span>{{ reply.text }}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% if current_user.is_authenticated and current_user.role == 'Farmer' and product.farmer_id == current_user.id %}
+                                        <form class="reply-form" data-review-id="{{ comment.id }}" onsubmit="return false;" style="margin-top:5px;">
+                                            <input type="text" name="reply" placeholder="Reply to this feedback..." required style="width:70%;">
+                                            <button type="submit">Reply</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                    <h4>No products available at the moment</h4>
-                    <p class="text-muted">Check back later for fresh products from our farmers</p>
-                </div>
-            {% endif %}
-        </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-products-message">
+                <i class="fas fa-box-open fa-3x"></i>
+                <h4>No products available at the moment</h4>
+                <p>Check back later for fresh products from our farmers</p>
+            </div>
+        {% endif %}
     </div>
 
     {% if not current_user.is_authenticated %}
-    <div class="row mt-5">
-        <div class="col-md-12">
-            <h2 class="text-center mb-4">Why Choose Us?</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-body text-center">
-                            <i class="fas fa-leaf fa-3x mb-3 text-success"></i>
-                            <h4>Fresh Products</h4>
-                            <p>Get products directly from local farmers</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-body text-center">
-                            <i class="fas fa-handshake fa-3x mb-3 text-primary"></i>
-                            <h4>Direct Connection</h4>
-                            <p>Connect directly with farmers and buyers</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-body text-center">
-                            <i class="fas fa-truck fa-3x mb-3 text-warning"></i>
-                            <h4>Easy Delivery</h4>
-                            <p>Convenient delivery options available</p>
-                        </div>
-                    </div>
-                </div>
+    <div class="why-choose-us-section">
+        <h2 class="why-choose-us-heading">Why Choose Us?</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-leaf"></i>
+                <h4>Fresh Products</h4>
+                <p>Get products directly from local farmers</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-handshake text-primary"></i>
+                <h4>Direct Connection</h4>
+                <p>Connect directly with farmers and buyers</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-truck text-warning"></i>
+                <h4>Easy Delivery</h4>
+                <p>Convenient delivery options available</p>
             </div>
         </div>
     </div>
     {% endif %}
 </div>
+
+<!-- Custom Add to Cart Confirmation Modal -->
+<div id="addToCartConfirmModal" class="custom-modal-overlay">
+    <div class="custom-modal-content">
+        <p id="addToCartModalMessage"></p>
+        <div class="custom-modal-actions">
+            <button class="button" onclick="hideAddToCartConfirmModal()">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+console.log("Script loaded");
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Authenticated welcome alert disappear after 5 seconds
+    const welcomeAlert = document.querySelector('.welcome-alert');
+    if (welcomeAlert) {
+        const initialHeight = welcomeAlert.scrollHeight;
+        welcomeAlert.style.height = `${initialHeight}px`;
+        setTimeout(() => {
+            welcomeAlert.classList.add('fade-out');
+            welcomeAlert.addEventListener('transitionend', () => {
+                if (welcomeAlert.classList.contains('fade-out')) {
+                    welcomeAlert.remove();
+                }
+            }, { once: true });
+        }, 5000);
+    }
+    // Main hero section disappear after 5 seconds
+    const mainHeroSection = document.querySelector('.main-hero-section');
+    if (mainHeroSection) {
+        const initialHeight = mainHeroSection.scrollHeight;
+        mainHeroSection.style.height = `${initialHeight}px`;
+        setTimeout(() => {
+            mainHeroSection.classList.add('fade-out');
+            mainHeroSection.addEventListener('transitionend', () => {
+                if (mainHeroSection.classList.contains('fade-out')) {
+                    mainHeroSection.remove();
+                }
+            }, { once: true });
+        }, 5000);
+    }
+
+    // Event delegation for Add to Cart and OK button
+    document.querySelectorAll('.product-grid').forEach(function(grid) {
+        grid.addEventListener('click', function(event) {
+            // Add to Cart button
+            if (event.target.closest('.add-to-cart-btn')) {
+                event.stopPropagation();
+                const btn = event.target.closest('.add-to-cart-btn');
+                const productId = btn.getAttribute('data-product-id');
+                const container = document.getElementById('add-to-cart-animated-' + productId);
+                if (!container.querySelector('input')) {
+                    container.innerHTML = `<input type='number' min='1' max='${maxQty}' value='1' id='cart-qty-${productId}' style='width:60px; margin-right:8px;'>\n<button class='cart-btn-confirm' type='button'>OK</button>`;
+                    setTimeout(() => {
+                        const input = document.getElementById('cart-qty-' + productId);
+                        if (input) {
+                            input.focus();
+                            input.select();
+                        }
+                    }, 100);
+                }
+            }
+            // OK button
+            if (event.target.classList.contains('cart-btn-confirm')) {
+                event.stopPropagation();
+                const container = event.target.closest('.add-to-cart-animated');
+                const input = container.querySelector('input[type="number"]');
+                const productId = container.id.replace('add-to-cart-animated-', '');
+                const maxQty = parseInt(input.getAttribute('max'));
+                addToCartWithQuantity(event, productId, maxQty);
+            }
+        });
+    });
+
+    // Add Enter key event for all cart quantity inputs (for dynamically created inputs)
+    document.addEventListener('keydown', function(event) {
+        if (event.target.matches('.add-to-cart-animated input[type="number"]') && event.key === 'Enter') {
+            const input = event.target;
+            const container = input.closest('.add-to-cart-animated');
+            const productId = container.id.replace('add-to-cart-animated-', '');
+            const maxQty = parseInt(input.getAttribute('max'));
+            addToCartWithQuantity(event, productId, maxQty);
+        }
+    });
+
+    // Star rating click handler
+    document.querySelectorAll('.star-rating .star').forEach(function(star) {
+        star.addEventListener('click', function(event) {
+            event.stopPropagation();
+            const productId = this.getAttribute('data-product-id');
+            const rating = this.getAttribute('data-value');
+            const stars = document.querySelectorAll(`.star-rating [data-product-id='${productId}']`);
+            stars.forEach((s, idx) => {
+                s.style.color = (idx < rating) ? '#FFD700' : '#ccc';
+            });
+            const form = document.getElementById(`feedback-form-${productId}`);
+            form.style.display = 'block';
+            form.dataset.rating = rating;
+        });
+    });
+
+    // Feedback form submit handler (AJAX)
+    document.querySelectorAll('.feedback-form').forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const productId = this.id.replace('feedback-form-', '');
+            const feedback = this.querySelector('textarea').value;
+            // Get the rating from the form's dataset or from the selected star
+            let rating = this.dataset.rating;
+            if (!rating) {
+                // Try to get from selected star
+                const card = this.closest('.product-card');
+                if (card) {
+                    const selectedStar = card.querySelector('.star.selected');
+                    if (selectedStar) rating = selectedStar.getAttribute('data-value');
+                }
+            }
+            fetch(`/products/review/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: rating, feedback: feedback })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Thank you for your feedback!');
+                    this.reset();
+                    this.style.display = 'none';
+                    loadComments(productId);
+                } else {
+                    alert(data.error || 'Failed to submit feedback.');
+                }
+            })
+            .catch(() => alert('Error submitting feedback.'));
+        });
+    });
+
+    // Reply form submit handler (AJAX)
+    document.querySelectorAll('.reply-form').forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const reviewId = this.getAttribute('data-review-id');
+            const reply = this.querySelector('input[name="reply"]').value;
+            fetch(`/products/reply/${reviewId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reply: reply })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Reply submitted!');
+                    this.reset();
+                    const productId = this.closest('.product-comments-section').getAttribute('data-product-id');
+                    loadComments(productId);
+                } else {
+                    alert(data.error || 'Failed to submit reply.');
+                }
+            })
+            .catch(() => alert('Error submitting reply.'));
+        });
+    });
+
+    // Add to Cart OK button handler
+    document.querySelectorAll('.cart-btn-confirm').forEach(function(btn) {
+        btn.addEventListener('click', function(event) {
+            event.stopPropagation();
+            const productId = btn.getAttribute('data-product-id');
+            const maxQty = btn.getAttribute('data-max-qty');
+            const qtyInput = document.getElementById('cart-qty-' + productId);
+            let qty = parseInt(qtyInput.value);
+            if (isNaN(qty) || qty < 1) qty = 1;
+            if (qty > maxQty) qty = maxQty;
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: qty })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Optionally, you can reset the input or show a message
+                qtyInput.value = 1;
+            });
+        });
+    });
+
+    // Add to Cart button handler (always adds 1)
+    document.querySelectorAll('.add-to-cart-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(event) {
+            event.stopPropagation();
+            const productId = btn.getAttribute('data-product-id');
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: 1 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Optionally, show a message or update UI
+            });
+        });
+    });
+
+    // Event delegation for product card expansion
+    document.querySelectorAll('.product-grid').forEach(function(grid) {
+        grid.addEventListener('click', function(event) {
+            const card = event.target.closest('.product-card');
+            if (!card) return;
+            // Prevent expansion if clicking on interactive elements
+            if (event.target.closest('.product-action-button, .add-to-cart-btn, .cart-btn-confirm, .feedback-form, .star-rating, input, button, a')) return;
+            card.classList.toggle('expanded');
+            const starRating = card.querySelector('.star-rating');
+            if (card.classList.contains('expanded')) {
+                if (starRating) starRating.style.display = 'flex';
+            } else {
+                if (starRating) starRating.style.display = 'none';
+            }
+        });
+    });
+
+    // Show star rating only when card is expanded
+    document.querySelectorAll('.product-card').forEach(function(card) {
+        card.addEventListener('click', function(event) {
+            if (event && event.target.closest('.product-action-button, .add-to-cart-btn, .feedback-form, .star-rating')) return;
+            card.classList.toggle('expanded');
+            const starRating = card.querySelector('.star-rating');
+            if (card.classList.contains('expanded')) {
+                if (starRating) starRating.style.display = 'flex';
+            } else {
+                if (starRating) starRating.style.display = 'none';
+            }
+        });
+    });
+});
+
+function toggleProductExpansion(element, event) {
+    console.log("Card clicked");
+    if (event && event.target.closest('.product-action-button, .add-to-cart-quantity, .feedback-form, .star-rating')) return;
+    element.classList.toggle('expanded');
+}
+
+function addToCartWithQuantity(event, productId, maxQty) {
+    console.log("Add to Cart clicked", productId);
+    event.stopPropagation();
+    const qtyInput = document.getElementById('cart-qty-' + productId);
+    let qty = parseInt(qtyInput.value);
+    if (isNaN(qty) || qty < 1) qty = 1;
+    if (qty > maxQty) qty = maxQty;
+    fetch(`/cart/add/${productId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity: qty })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const container = document.getElementById('add-to-cart-animated-' + productId);
+        container.innerHTML = `<button class='product-action-button add-to-cart-btn' type='button' data-product-id='${productId}' data-max-qty='${maxQty}'><span class='cart-btn-label'><i class='fas fa-cart-plus'></i> Add to Cart</span></button>`;
+    });
+}
+
+function loadComments(productId) {
+    fetch(`/products/reviews/${productId}`)
+        .then(response => response.json())
+        .then(data => {
+            const section = document.querySelector(`.product-comments-section[data-product-id='${productId}']`);
+            if (!section) return;
+            let html = '<h6>Feedback & Replies</h6>';
+            // If user has rated, show their review at the top and hide the star rating/feedback form
+            if (data.has_rated && data.user_review) {
+                html += `<div class='product-comment your-review'><strong>You</strong>:
+                    <span class='comment-rating'>${'&#9733;'.repeat(data.user_review.rating)}</span>
+                    <p>${data.user_review.text}</p>
+                </div>`;
+                // Hide star rating and feedback form
+                const card = section.closest('.product-card');
+                if (card) {
+                    const starRating = card.querySelector('.star-rating');
+                    const feedbackForm = card.querySelector('.feedback-form');
+                    if (starRating) starRating.style.display = 'none';
+                    if (feedbackForm) feedbackForm.style.display = 'none';
+                }
+            } else {
+                // Show star rating and feedback form if not rated
+                const card = section.closest('.product-card');
+                if (card) {
+                    const starRating = card.querySelector('.star-rating');
+                    if (starRating && card.classList.contains('expanded')) starRating.style.display = 'flex';
+                }
+            }
+            data.comments.forEach(comment => {
+                html += `<div class="product-comment" data-review-id="${comment.id}">
+                    <strong>${comment.buyer.username || comment.buyer}</strong>:
+                    <span class="comment-rating">${'&#9733;'.repeat(comment.rating)}</span>
+                    <p>${comment.text}</p>
+                    <div class="comment-replies">`;
+                comment.replies.forEach(reply => {
+                    html += `<div class="comment-reply">
+                        <strong>${reply.farmer.username || reply.farmer}</strong> (Farmer):
+                        <span>${reply.text}</span>
+                    </div>`;
+                });
+                html += `</div>`;
+                if (comment.can_reply) {
+                    html += `<form class="reply-form" data-review-id="${comment.id}" onsubmit="return false;" style="margin-top:5px;">
+                        <input type="text" name="reply" placeholder="Reply to this feedback..." required style="width:70%;">
+                        <button type="submit">Reply</button>
+                    </form>`;
+                }
+                html += `</div>`;
+            });
+            section.innerHTML = html;
+            // Re-attach reply form event listeners
+            section.querySelectorAll('.reply-form').forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const reviewId = this.getAttribute('data-review-id');
+                    const reply = this.querySelector('input[name="reply"]').value;
+                    fetch(`/products/reply/${reviewId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ reply: reply })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Reply submitted!');
+                            this.reset();
+                            loadComments(productId);
+                        } else {
+                            alert(data.error || 'Failed to submit reply.');
+                        }
+                    })
+                    .catch(() => alert('Error submitting reply.'));
+                });
+            });
+        });
+}
+</script>
 {% endblock %}
