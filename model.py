@@ -45,6 +45,7 @@ class Product(db.Model):
     description = db.Column(db.Text, nullable=True)
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    unit = db.Column(db.String(20), nullable=True)  # e.g., 'Kg', 'Unit', 'Litre'
     image_path = db.Column(db.String(255), nullable=True) # Path to product image
     is_available = db.Column(db.Boolean, default=True)
     farmer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

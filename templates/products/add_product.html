@@ -131,11 +131,17 @@
         </div>
 
         <div class="form-group">
-            <label for="unit" class="form-label">Unit</label>
+            <label for="unit" class="form-label">Measurement Unit</label>
             <select class="form-select" id="unit" name="unit" required>
-                <option value="unit">Unit(s)</option>
-                <option value="kilogram">Kilogram(s)</option>
+                <option value="">Select unit</option>
+                <option value="Kg">Kg</option>
+                <option value="Unit">Unit</option>
+                <option value="Litre">Litre</option>
+                <option value="Pack">Pack</option>
+                <option value="Box">Box</option>
+                <option value="Other">Other</option>
             </select>
+            <input type="text" class="form-input" id="unit_other" name="unit_other" placeholder="Enter custom unit" style="display:none; margin-top:8px;">
         </div>
         
         <div class="form-group">
@@ -149,4 +155,23 @@
         </div>
     </form>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var unitSelect = document.getElementById('unit');
+    var unitOther = document.getElementById('unit_other');
+    if(unitSelect && unitOther) {
+        function toggleOther() {
+            if(unitSelect.value === 'Other') {
+                unitOther.style.display = 'block';
+                unitOther.required = true;
+            } else {
+                unitOther.style.display = 'none';
+                unitOther.required = false;
+            }
+        }
+        unitSelect.addEventListener('change', toggleOther);
+        toggleOther();
+    }
+});
+</script>
 {% endblock %}

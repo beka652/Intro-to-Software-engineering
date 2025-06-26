@@ -618,33 +618,75 @@
         margin-top: 15px;
         border-top: 1px solid #eee;
         padding-top: 10px;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
     }
-    .product-comment {
-        margin-bottom: 10px;
-        padding: 10px;
-        background-color: #f9f9f9;
-        border-radius: 4px;
+    .product-card.expanded .product-comments-section {
+        max-height: 1000px;
+        opacity: 1;
+    }
+
+    .product-feedback-section { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.3s, opacity 0.3s; }
+    .product-card.expanded .product-feedback-section { max-height: 1000px; opacity: 1; margin-top: 15px; }
+    .star-rating, .product-rating-section { display: none; }
+    .product-card.expanded .star-rating, .product-card.expanded .product-rating-section { display: block; }
+    .add-to-cart-quantity { display: none; margin-top: 10px; }
+    .add-to-cart-quantity input { width: 60px; padding: 5px; margin-right: 10px; }
+    .add-to-cart-quantity button { padding: 5px 15px; }
+
+    .add-to-cart-animated {
+        display: inline-block;
         position: relative;
+        transition: width 0.3s, background 0.3s;
+        overflow: hidden;
+        vertical-align: middle;
     }
-    .product-comment strong {
-        color: #333;
+    .add-to-cart-animated input {
+        width: 0;
+        opacity: 0;
+        transition: width 0.3s, opacity 0.3s;
+        border: none;
+        outline: none;
+        padding: 0 0;
+        font-size: 1em;
+        background: transparent;
     }
-    .comment-rating {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        font-size: 0.9em;
-        color: #FFD700;
+    .add-to-cart-animated.expanded input {
+        width: 60px;
+        opacity: 1;
+        padding: 5px 10px;
+        background: #fff;
+        border: 1px solid #ccc;
+        margin-right: 8px;
+        border-radius: 4px;
     }
-    .comment-replies {
-        margin-top: 5px;
-        padding-left: 20px;
-        border-left: 2px solid #007bff;
+    .add-to-cart-animated .cart-btn-label {
+        display: inline-block;
+        transition: opacity 0.2s;
     }
-    .comment-reply {
-        margin-bottom: 5px;
-        font-size: 0.9em;
-        color: #555;
+    .add-to-cart-animated.expanded .cart-btn-label {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .add-to-cart-animated .cart-btn-confirm {
+        display: none;
+    }
+    .add-to-cart-animated.expanded .cart-btn-confirm {
+        display: inline-block;
+        background: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 12px;
+        margin-left: 2px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+    .add-to-cart-animated.expanded .cart-btn-confirm:hover {
+        background: #218838;
     }
 </style>
 
@@ -696,7 +738,8 @@
                 {% for product in products %}
                 <div class="product-card" onclick="toggleProductExpansion(this, event)">
                     {% if product.image_path %}
-                        <img src="{{ url_for('static', filename='uploads/' + product.image_path) }}" class="product-card-image" alt="{{ product.name }}">
+                        {% set image_path = product.image_path.replace('\\', '/') %}
+                        <img src="{{ url_for('static', filename='uploads/' + image_path) }}" class="product-card-image" alt="{{ product.name }}">
                     {% else %}
                         <div class="product-card-no-image">
                             <i class="fas fa-image fa-3x"></i>
@@ -724,26 +767,18 @@
                                 </div>
                             </div>
                             <small>
-                                <i class="fas fa-box"></i> Available quantity: {{ product.quantity }}
+                                <i class="fas fa-box"></i> Available quantity: {{ product.quantity }} {{ product.unit or '' }}
                             </small>
                         </div>
                         <div class="product-footer">
-                            <span class="product-price">${{ "%.2f"|format(product.price) }}</span>
+                            <span class="product-price">
+                                ${{ "%.2f"|format(product.price) }} /{{ product.unit or '' }}
+                            </span>
                             {% if current_user.is_authenticated and current_user.role == 'Buyer' %}
-                                <button class="product-action-button" onclick="showAddToCartConfirmModal(event, '{{ product.id }}', '{{ product.name }}')">
-                                    <i class="fas fa-cart-plus"></i> Add to Cart
-                                </button>
-                                <!-- Star Rating and Feedback -->
-                                <div class="product-rating-section" data-product-id="{{ product.id }}">
-                                    <div class="star-rating">
-                                        {% for i in range(1,6) %}
-                                        <span class="star" data-value="{{ i }}" data-product-id="{{ product.id }}">&#9733;</span>
-                                        {% endfor %}
-                                    </div>
-                                    <form class="feedback-form" id="feedback-form-{{ product.id }}" style="display:none;">
-                                        <textarea name="feedback" placeholder="Write your feedback..." required></textarea>
-                                        <button type="submit">Submit Feedback</button>
-                                    </form>
+                                <div class="add-to-cart-animated" id="add-to-cart-animated-{{ product.id }}">
+                                    <button class="product-action-button add-to-cart-btn" type="button" data-product-id="{{ product.id }}">
+                                        <span class="cart-btn-label"><i class="fas fa-cart-plus"></i> Add to Cart</span>
+                                    </button>
                                 </div>
                             {% elif not current_user.is_authenticated %}
                                 <a href="{{ url_for('signin.signin') }}" class="product-action-button outline" onclick="event.stopPropagation();">
@@ -751,30 +786,41 @@
                                 </a>
                             {% endif %}
                         </div>
-                        <!-- Comments and Replies Section -->
-                        <div class="product-comments-section" data-product-id="{{ product.id }}">
-                            <h6>Feedback & Replies</h6>
-                            {% for comment in product.comments %}
-                                <div class="product-comment" data-review-id="{{ comment.id }}">
-                                    <strong>{{ comment.buyer.username }}</strong>:
-                                    <span class="comment-rating">{% for i in range(comment.rating) %}&#9733;{% endfor %}</span>
-                                    <p>{{ comment.text }}</p>
-                                    <div class="comment-replies">
-                                        {% for reply in comment.replies %}
-                                            <div class="comment-reply">
-                                                <strong>{{ reply.farmer.username }}</strong> (Farmer):
-                                                <span>{{ reply.text }}</span>
-                                            </div>
-                                        {% endfor %}
+                        <div class="product-feedback-section">
+                            <div class="star-rating" style="display:none;">
+                                {% for i in range(1, 6) %}
+                                    <span class="star" data-product-id="{{ product.id }}" data-value="{{ i }}">&#9733;</span>
+                                {% endfor %}
+                            </div>
+                            <form class="feedback-form" id="feedback-form-{{ product.id }}" style="display:none; margin-top:10px;">
+                                <textarea placeholder="Leave your feedback..." required></textarea>
+                                <button type="submit">Submit</button>
+                            </form>
+                            <!-- Comments and Replies Section (already implemented) -->
+                            <div class="product-comments-section" data-product-id="{{ product.id }}">
+                                <h6>Feedback & Replies</h6>
+                                {% for comment in product.comments %}
+                                    <div class="product-comment" data-review-id="{{ comment.id }}">
+                                        <strong>{{ comment.buyer.username }}</strong>:
+                                        <span class="comment-rating">{% for i in range(comment.rating) %}&#9733;{% endfor %}</span>
+                                        <p>{{ comment.text }}</p>
+                                        <div class="comment-replies">
+                                            {% for reply in comment.replies %}
+                                                <div class="comment-reply">
+                                                    <strong>{{ reply.farmer.username }}</strong> (Farmer):
+                                                    <span>{{ reply.text }}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% if current_user.is_authenticated and current_user.role == 'Farmer' and product.farmer_id == current_user.id %}
+                                        <form class="reply-form" data-review-id="{{ comment.id }}" onsubmit="return false;" style="margin-top:5px;">
+                                            <input type="text" name="reply" placeholder="Reply to this feedback..." required style="width:70%;">
+                                            <button type="submit">Reply</button>
+                                        </form>
+                                        {% endif %}
                                     </div>
-                                    {% if current_user.is_authenticated and current_user.role == 'Farmer' and product.farmer_id == current_user.id %}
-                                    <form class="reply-form" data-review-id="{{ comment.id }}" onsubmit="return false;" style="margin-top:5px;">
-                                        <input type="text" name="reply" placeholder="Reply to this feedback..." required style="width:70%;">
-                                        <button type="submit">Reply</button>
-                                    </form>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -824,98 +870,116 @@
 </div>
 
 <script>
+console.log("Script loaded");
+
 document.addEventListener('DOMContentLoaded', () => {
     // Authenticated welcome alert disappear after 5 seconds
     const welcomeAlert = document.querySelector('.welcome-alert');
     if (welcomeAlert) {
-        // Get the initial height to smoothly transition it to 0
         const initialHeight = welcomeAlert.scrollHeight;
-        welcomeAlert.style.height = `${initialHeight}px`; // Set initial height
-
+        welcomeAlert.style.height = `${initialHeight}px`;
         setTimeout(() => {
             welcomeAlert.classList.add('fade-out');
-            // Remove the element from the DOM after transition to free up space
             welcomeAlert.addEventListener('transitionend', () => {
                 if (welcomeAlert.classList.contains('fade-out')) {
                     welcomeAlert.remove();
                 }
             }, { once: true });
-        }, 5000); // 5 seconds
+        }, 5000);
     }
-
     // Main hero section disappear after 5 seconds
     const mainHeroSection = document.querySelector('.main-hero-section');
     if (mainHeroSection) {
-        // Get initial height for smooth transition
         const initialHeight = mainHeroSection.scrollHeight;
         mainHeroSection.style.height = `${initialHeight}px`;
-
         setTimeout(() => {
             mainHeroSection.classList.add('fade-out');
-            // Remove the element from the DOM after transition to free up space
             mainHeroSection.addEventListener('transitionend', () => {
                 if (mainHeroSection.classList.contains('fade-out')) {
                     mainHeroSection.remove();
                 }
             }, { once: true });
-        }, 5000); // 5 seconds
+        }, 5000);
     }
-});
 
+    // Event delegation for Add to Cart and OK button
+    document.querySelectorAll('.product-grid').forEach(function(grid) {
+        grid.addEventListener('click', function(event) {
+            // Add to Cart button
+            if (event.target.closest('.add-to-cart-btn')) {
+                event.stopPropagation();
+                const btn = event.target.closest('.add-to-cart-btn');
+                const productId = btn.getAttribute('data-product-id');
+                const container = document.getElementById('add-to-cart-animated-' + productId);
+                if (!container.querySelector('input')) {
+                    container.innerHTML = `<input type='number' min='1' max='${maxQty}' value='1' id='cart-qty-${productId}' style='width:60px; margin-right:8px;'>\n<button class='cart-btn-confirm' type='button'>OK</button>`;
+                    setTimeout(() => {
+                        const input = document.getElementById('cart-qty-' + productId);
+                        if (input) {
+                            input.focus();
+                            input.select();
+                        }
+                    }, 100);
+                }
+            }
+            // OK button
+            if (event.target.classList.contains('cart-btn-confirm')) {
+                event.stopPropagation();
+                const container = event.target.closest('.add-to-cart-animated');
+                const input = container.querySelector('input[type="number"]');
+                const productId = container.id.replace('add-to-cart-animated-', '');
+                const maxQty = parseInt(input.getAttribute('max'));
+                addToCartWithQuantity(event, productId, maxQty);
+            }
+        });
+    });
 
-function toggleProductExpansion(element, event) {
-    // Stop propagation if the click originated from a button inside the card
-    if (event.target.closest('.product-action-button, .product-action-button.outline')) {
-        return;
-    }
-    element.classList.toggle('expanded');
-}
+    // Add Enter key event for all cart quantity inputs (for dynamically created inputs)
+    document.addEventListener('keydown', function(event) {
+        if (event.target.matches('.add-to-cart-animated input[type="number"]') && event.key === 'Enter') {
+            const input = event.target;
+            const container = input.closest('.add-to-cart-animated');
+            const productId = container.id.replace('add-to-cart-animated-', '');
+            const maxQty = parseInt(input.getAttribute('max'));
+            addToCartWithQuantity(event, productId, maxQty);
+        }
+    });
 
-function showAddToCartConfirmModal(event, productId, productName) {
-    event.stopPropagation(); // Prevent card from expanding when add to cart is clicked
-    const modal = document.getElementById('addToCartConfirmModal');
-    const messageElement = document.getElementById('addToCartModalMessage');
-    messageElement.textContent = `"${productName}" (ID: ${productId}) added to cart!`;
-    // TODO: Implement actual add to cart logic here
-    modal.classList.add('show');
-}
-
-function hideAddToCartConfirmModal() {
-    const modal = document.getElementById('addToCartConfirmModal');
-    modal.classList.remove('show');
-}
-
-// Event delegation for star rating and feedback form submission
-document.addEventListener('DOMContentLoaded', function() {
     // Star rating click handler
     document.querySelectorAll('.star-rating .star').forEach(function(star) {
         star.addEventListener('click', function(event) {
             event.stopPropagation();
             const productId = this.getAttribute('data-product-id');
             const rating = this.getAttribute('data-value');
-            // Highlight stars
             const stars = document.querySelectorAll(`.star-rating [data-product-id='${productId}']`);
             stars.forEach((s, idx) => {
                 s.style.color = (idx < rating) ? '#FFD700' : '#ccc';
             });
-            // Show feedback form
             const form = document.getElementById(`feedback-form-${productId}`);
             form.style.display = 'block';
             form.dataset.rating = rating;
         });
     });
+
     // Feedback form submit handler (AJAX)
     document.querySelectorAll('.feedback-form').forEach(function(form) {
         form.addEventListener('submit', function(event) {
             event.preventDefault();
             const productId = this.id.replace('feedback-form-', '');
             const feedback = this.querySelector('textarea').value;
-            const rating = this.dataset.rating;
+            // Get the rating from the form's dataset or from the selected star
+            let rating = this.dataset.rating;
+            if (!rating) {
+                // Try to get from selected star
+                const card = this.closest('.product-card');
+                if (card) {
+                    const selectedStar = card.querySelector('.star.selected');
+                    if (selectedStar) rating = selectedStar.getAttribute('data-value');
+                }
+            }
             fetch(`/products/review/${productId}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ rating: rating, feedback: feedback })
             })
             .then(response => response.json())
@@ -924,7 +988,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('Thank you for your feedback!');
                     this.reset();
                     this.style.display = 'none';
-                    // Optionally reload comments
                     loadComments(productId);
                 } else {
                     alert(data.error || 'Failed to submit feedback.');
@@ -933,11 +996,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(() => alert('Error submitting feedback.'));
         });
     });
-    // Load comments for each product
-    document.querySelectorAll('.product-comments-section').forEach(function(section) {
-        const productId = section.closest('.product-card').querySelector('.star').getAttribute('data-product-id');
-        loadComments(productId);
-    });
+
     // Reply form submit handler (AJAX)
     document.querySelectorAll('.reply-form').forEach(function(form) {
         form.addEventListener('submit', function(event) {
@@ -946,9 +1005,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const reply = this.querySelector('input[name="reply"]').value;
             fetch(`/products/reply/${reviewId}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ reply: reply })
             })
             .then(response => response.json())
@@ -956,7 +1013,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     alert('Reply submitted!');
                     this.reset();
-                    // Optionally reload comments
                     const productId = this.closest('.product-comments-section').getAttribute('data-product-id');
                     loadComments(productId);
                 } else {
@@ -966,31 +1022,179 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(() => alert('Error submitting reply.'));
         });
     });
+
+    // Add to Cart OK button handler
+    document.querySelectorAll('.cart-btn-confirm').forEach(function(btn) {
+        btn.addEventListener('click', function(event) {
+            event.stopPropagation();
+            const productId = btn.getAttribute('data-product-id');
+            const maxQty = btn.getAttribute('data-max-qty');
+            const qtyInput = document.getElementById('cart-qty-' + productId);
+            let qty = parseInt(qtyInput.value);
+            if (isNaN(qty) || qty < 1) qty = 1;
+            if (qty > maxQty) qty = maxQty;
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: qty })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Optionally, you can reset the input or show a message
+                qtyInput.value = 1;
+            });
+        });
+    });
+
+    // Add to Cart button handler (always adds 1)
+    document.querySelectorAll('.add-to-cart-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(event) {
+            event.stopPropagation();
+            const productId = btn.getAttribute('data-product-id');
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: 1 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Optionally, show a message or update UI
+            });
+        });
+    });
+
+    // Event delegation for product card expansion
+    document.querySelectorAll('.product-grid').forEach(function(grid) {
+        grid.addEventListener('click', function(event) {
+            const card = event.target.closest('.product-card');
+            if (!card) return;
+            // Prevent expansion if clicking on interactive elements
+            if (event.target.closest('.product-action-button, .add-to-cart-btn, .cart-btn-confirm, .feedback-form, .star-rating, input, button, a')) return;
+            card.classList.toggle('expanded');
+            const starRating = card.querySelector('.star-rating');
+            if (card.classList.contains('expanded')) {
+                if (starRating) starRating.style.display = 'flex';
+            } else {
+                if (starRating) starRating.style.display = 'none';
+            }
+        });
+    });
+
+    // Show star rating only when card is expanded
+    document.querySelectorAll('.product-card').forEach(function(card) {
+        card.addEventListener('click', function(event) {
+            if (event && event.target.closest('.product-action-button, .add-to-cart-btn, .feedback-form, .star-rating')) return;
+            card.classList.toggle('expanded');
+            const starRating = card.querySelector('.star-rating');
+            if (card.classList.contains('expanded')) {
+                if (starRating) starRating.style.display = 'flex';
+            } else {
+                if (starRating) starRating.style.display = 'none';
+            }
+        });
+    });
 });
+
+function toggleProductExpansion(element, event) {
+    console.log("Card clicked");
+    if (event && event.target.closest('.product-action-button, .add-to-cart-quantity, .feedback-form, .star-rating')) return;
+    element.classList.toggle('expanded');
+}
+
+function addToCartWithQuantity(event, productId, maxQty) {
+    console.log("Add to Cart clicked", productId);
+    event.stopPropagation();
+    const qtyInput = document.getElementById('cart-qty-' + productId);
+    let qty = parseInt(qtyInput.value);
+    if (isNaN(qty) || qty < 1) qty = 1;
+    if (qty > maxQty) qty = maxQty;
+    fetch(`/cart/add/${productId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity: qty })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const container = document.getElementById('add-to-cart-animated-' + productId);
+        container.innerHTML = `<button class='product-action-button add-to-cart-btn' type='button' data-product-id='${productId}' data-max-qty='${maxQty}'><span class='cart-btn-label'><i class='fas fa-cart-plus'></i> Add to Cart</span></button>`;
+    });
+}
+
 function loadComments(productId) {
     fetch(`/products/reviews/${productId}`)
         .then(response => response.json())
-        .then(comments => {
-            const section = document.querySelector(`.product-card [data-product-id='${productId}']`).closest('.product-card').querySelector('.product-comments-section');
+        .then(data => {
+            const section = document.querySelector(`.product-comments-section[data-product-id='${productId}']`);
+            if (!section) return;
             let html = '<h6>Feedback & Replies</h6>';
-            if (comments.length === 0) {
-                html += '<p>No feedback yet.</p>';
+            // If user has rated, show their review at the top and hide the star rating/feedback form
+            if (data.has_rated && data.user_review) {
+                html += `<div class='product-comment your-review'><strong>You</strong>:
+                    <span class='comment-rating'>${'&#9733;'.repeat(data.user_review.rating)}</span>
+                    <p>${data.user_review.text}</p>
+                </div>`;
+                // Hide star rating and feedback form
+                const card = section.closest('.product-card');
+                if (card) {
+                    const starRating = card.querySelector('.star-rating');
+                    const feedbackForm = card.querySelector('.feedback-form');
+                    if (starRating) starRating.style.display = 'none';
+                    if (feedbackForm) feedbackForm.style.display = 'none';
+                }
             } else {
-                comments.forEach(comment => {
-                    html += `<div class='product-comment'><strong>${comment.buyer.username}</strong>:`;
-                    html += `<span class='comment-rating'>${'&#9733;'.repeat(comment.rating)}</span>`;
-                    html += `<p>${comment.text}</p>`;
-                    if (comment.replies && comment.replies.length > 0) {
-                        html += `<div class='comment-replies'>`;
-                        comment.replies.forEach(reply => {
-                            html += `<div class='comment-reply'><strong>${reply.farmer.username}</strong> (Farmer): <span>${reply.text}</span></div>`;
-                        });
-                        html += `</div>`;
-                    }
-                    html += `</div>`;
-                });
+                // Show star rating and feedback form if not rated
+                const card = section.closest('.product-card');
+                if (card) {
+                    const starRating = card.querySelector('.star-rating');
+                    if (starRating && card.classList.contains('expanded')) starRating.style.display = 'flex';
+                }
             }
+            data.comments.forEach(comment => {
+                html += `<div class="product-comment" data-review-id="${comment.id}">
+                    <strong>${comment.buyer.username || comment.buyer}</strong>:
+                    <span class="comment-rating">${'&#9733;'.repeat(comment.rating)}</span>
+                    <p>${comment.text}</p>
+                    <div class="comment-replies">`;
+                comment.replies.forEach(reply => {
+                    html += `<div class="comment-reply">
+                        <strong>${reply.farmer.username || reply.farmer}</strong> (Farmer):
+                        <span>${reply.text}</span>
+                    </div>`;
+                });
+                html += `</div>`;
+                if (comment.can_reply) {
+                    html += `<form class="reply-form" data-review-id="${comment.id}" onsubmit="return false;" style="margin-top:5px;">
+                        <input type="text" name="reply" placeholder="Reply to this feedback..." required style="width:70%;">
+                        <button type="submit">Reply</button>
+                    </form>`;
+                }
+                html += `</div>`;
+            });
             section.innerHTML = html;
+            // Re-attach reply form event listeners
+            section.querySelectorAll('.reply-form').forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const reviewId = this.getAttribute('data-review-id');
+                    const reply = this.querySelector('input[name="reply"]').value;
+                    fetch(`/products/reply/${reviewId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ reply: reply })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Reply submitted!');
+                            this.reset();
+                            loadComments(productId);
+                        } else {
+                            alert(data.error || 'Failed to submit reply.');
+                        }
+                    })
+                    .catch(() => alert('Error submitting reply.'));
+                });
+            });
         });
 }
 </script>

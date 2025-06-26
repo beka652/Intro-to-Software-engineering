@@ -31,6 +31,7 @@ def add_product():
         description = request.form.get('description')
         price = request.form.get('price')
         quantity = request.form.get('quantity')
+        unit = request.form.get('unit')
         
         # Handle product image
         image = request.files.get('image')
@@ -51,6 +52,7 @@ def add_product():
             description=description,
             price=float(price),
             quantity=int(quantity),
+            unit=unit,
             image_path=image_path,
             farmer_id=current_user.id,
             is_available=True
@@ -129,7 +131,7 @@ def delete_product(product_id):
 @products_bp.route('/review/<int:product_id>', methods=['POST'])
 @login_required
 def submit_review(product_id):
-    if current_user.role != 'Customer':
+    if current_user.role != 'Buyer':
         return jsonify({'error': 'Only buyers can submit reviews.'}), 403
     data = request.get_json() or request.form
     rating = int(data.get('rating', 0))
@@ -195,4 +197,13 @@ def serialize_review(review):
 @products_bp.route('/reviews/<int:product_id>')
 def get_reviews(product_id):
     reviews = Review.query.filter_by(product_id=product_id).all()
-    return jsonify([serialize_review(r) for r in reviews])
+    user_review = None
+    has_rated = False
+    if current_user.is_authenticated and current_user.role == 'Buyer':
+        user_review = Review.query.filter_by(product_id=product_id, user_id=current_user.id).first()
+        has_rated = user_review is not None
+    return jsonify({
+        'comments': [serialize_review(r) for r in reviews],
+        'has_rated': has_rated,
+        'user_review': serialize_review(user_review) if user_review else None
+    })
