@@ -3,6 +3,9 @@ from flask_login import login_required, current_user
 from model import db, Product
 from werkzeug.utils import secure_filename
 import os
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 products_bp = Blueprint('products', __name__)
 UPLOAD_FOLDER = 'static/uploads'
@@ -35,15 +38,11 @@ def add_product():
         image = request.files.get('image')
         image_path = None
         if image and image.filename:
-            # Create user's product directory
-            user_product_dir = os.path.join(UPLOAD_FOLDER, current_user.email)
-            os.makedirs(user_product_dir, exist_ok=True)
-            
-            # Save the image
-            filename = secure_filename(image.filename)
-            image_path = os.path.join(current_user.email, filename)
+            import time
+            filename = f"{current_user.id}_{int(time.time())}_{secure_filename(image.filename)}"
+            image_path = filename
             image.save(os.path.join(UPLOAD_FOLDER, image_path))
-            print(f"Debug - Saved image to: {os.path.join(UPLOAD_FOLDER, image_path)}")  # Debug line
+            logging.debug(f"Saved image to: {os.path.join(UPLOAD_FOLDER, image_path)}")
         
         new_product = Product(
             name=name,
@@ -82,21 +81,16 @@ def edit_product(product_id):
         # Handle product image update
         image = request.files.get('image')
         if image and image.filename:
-            # Create user's product directory
-            user_product_dir = os.path.join(UPLOAD_FOLDER, current_user.email)
-            os.makedirs(user_product_dir, exist_ok=True)
-            
+            import time
             # Delete old image if it exists
             if product.image_path:
                 old_image_path = os.path.join(UPLOAD_FOLDER, product.image_path)
                 if os.path.exists(old_image_path):
                     os.remove(old_image_path)
-            
-            # Save the new image
-            filename = secure_filename(image.filename)
-            product.image_path = os.path.join(current_user.email, filename)
+            filename = f"{current_user.id}_{int(time.time())}_{secure_filename(image.filename)}"
+            product.image_path = filename
             image.save(os.path.join(UPLOAD_FOLDER, product.image_path))
-            print(f"Debug - Updated image to: {os.path.join(UPLOAD_FOLDER, product.image_path)}")  # Debug line
+            logging.debug(f"Updated image to: {os.path.join(UPLOAD_FOLDER, product.image_path)}")
         
         db.session.commit()
         flash('Product updated successfully!', 'success')
