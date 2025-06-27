@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/register.css">
+</head>
+<body>
+    <div class="content-box">
+        <h2>Register</h2>
+        <!-- Message container for errors/success -->
+        <div id="messageContainer" class="hidden"></div>
+        <!-- The registration form -->
+        <form id="registerForm" method="POST" action="{{ url_for('register.register_authentication') }}" enctype="multipart/form-data">
+            <div class="form-section">
+                <label for="email">Email address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-section">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-section">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-section">
+                <label class="radio-group">Register as:</label>
+                <div class="radio-item">
+                    <input type="radio" id="roleFarmer" name="userRole" value="farmer">
+                    <label for="roleFarmer">Farmer</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" id="roleBuyer" name="userRole" value="buyer">
+                    <label for="roleBuyer">Buyer</label>
+                </div>
+            </div>
+
+            <!-- Farmer specific fields -->
+            <div id="farmerFields" class="form-section">
+                <div class="form-section">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber">
+                </div>
+                <div class="form-section">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city">
+                </div>
+                <div class="form-section">
+                    <label for="subCity">Sub City</label>
+                    <input type="text" id="subCity" name="subCity">
+                </div>
+                <div class="form-section">
+                    <label for="idPicture">Upload ID Picture</label>
+                    <input type="file" id="idPicture" name="idPicture" accept="image/*">
+                    <p class="file-input-name" id="idPictureName">No file chosen</p>
+                    <div id="idPictureUploadProgress" class="progress-container hidden">
+                        <div class="progress-bar"></div>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <label for="facePicture">Upload Face Picture</label>
+                    <input type="file" id="facePicture" name="facePicture" accept="image/*">
+                    <p class="file-input-name" id="facePictureName">No file chosen</p>
+                    <div id="facePictureUploadProgress" class="progress-container hidden">
+                        <div class="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <button type="submit">
+                    Register
+                </button>
+            </div>
+        </form>
+        <p class="link-text">
+            Already have an account?
+            <a href="{{ url_for('signin.signin') }}">Login here</a>
+        </p>
+    </div>
+
+    <script>
+        // Get the message container element
+        const messageContainer = document.getElementById('messageContainer');
+
+        // Function to display messages (replaces showModal)
+        function displayMessage(message, type) {
+            messageContainer.textContent = message;
+            messageContainer.classList.remove('hidden', 'message-error', 'message-success');
+            if (type === 'error') {
+                messageContainer.classList.add('message-error');
+            } else if (type === 'success') {
+                messageContainer.classList.add('message-success');
+            }
+            // Optional: You can add a timeout here to hide the message after a few seconds
+            // setTimeout(() => {
+            //     messageContainer.classList.add('hidden');
+            // }, 5000); // Hide after 5 seconds
+        }
+
+        // Ensure message container is hidden on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            messageContainer.classList.add('hidden');
+            // Initial check for farmer fields visibility
+            toggleFarmerFields();
+        });
+
+        // Function to toggle visibility of farmer-specific fields
+        function toggleFarmerFields() {
+            const farmerRoleRadio = document.getElementById('roleFarmer');
+            const farmerFieldsDiv = document.getElementById('farmerFields');
+            
+            // Get references to the specific fields you want to toggle
+            const phoneNumberInput = document.getElementById('phoneNumber');
+            const cityInput = document.getElementById('city');
+            const subCityInput = document.getElementById('subCity');
+            const idPictureInput = document.getElementById('idPicture');
+            const facePictureInput = document.getElementById('facePicture');
+
+
+            if (farmerRoleRadio.checked) {
+                farmerFieldsDiv.classList.remove('hidden');
+                // Make farmer-specific fields required when visible
+                phoneNumberInput.setAttribute('required', 'required');
+                cityInput.setAttribute('required', 'required');
+                subCityInput.setAttribute('required', 'required');
+                idPictureInput.setAttribute('required', 'required'); // Make file inputs required
+                facePictureInput.setAttribute('required', 'required');
+            } else {
+                farmerFieldsDiv.classList.add('hidden');
+                // Remove required attribute when hidden
+                phoneNumberInput.removeAttribute('required');
+                cityInput.removeAttribute('required');
+                subCityInput.removeAttribute('required');
+                idPictureInput.removeAttribute('required'); // Remove required from file inputs
+                facePictureInput.removeAttribute('required');
+            }
+        }
+
+        // Add event listeners to role radio buttons
+        document.getElementById('roleFarmer').addEventListener('change', toggleFarmerFields);
+        document.getElementById('roleBuyer').addEventListener('change', toggleFarmerFields);
+
+        // Event listeners for file inputs to update displayed file name
+        document.getElementById('idPicture').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            document.getElementById('idPictureName').textContent = file ? `Selected: ${file.name}` : 'No file chosen';
+        });
+
+        document.getElementById('facePicture').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            document.getElementById('facePictureName').textContent = file ? `Selected: ${file.name}` : 'No file chosen';
+        });
+    </script>
+</body>
+</html>

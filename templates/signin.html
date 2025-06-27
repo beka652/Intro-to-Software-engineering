@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignIn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/signin.css">
+</head>
+<body>
+    <div class="content-box">
+        <h2>Sign In</h2>
+        
+        <!-- Message container for errors/success -->
+        <div id="messageContainer" class="hidden"></div>
+
+        <form id="loginForm" method="POST" action="">
+            <div class="form-section">
+                <label for="username">Username</label>
+                <input type="username" id="username" name="username" required>
+            </div>
+            <div class="form-section">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-section">
+                <button type="submit">
+                    Sign In
+                </button>
+            </div>
+        </form>
+        <p class="link-text">
+            Don't have an account?
+            <a href="{{ url_for('register.register')}}">Register here</a>
+        </p>
+    </div>
+
+    <script>
+        // Get the message container element
+        const messageContainer = document.getElementById('messageContainer');
+
+        // Function to display messages
+        function displayMessage(message, type) {
+            messageContainer.textContent = message;
+            messageContainer.classList.remove('hidden', 'message-error', 'message-success');
+            if (type === 'error') {
+                messageContainer.classList.add('message-error');
+            } else if (type === 'success') {
+                messageContainer.classList.add('message-success');
+            }
+        }
+
+        // Ensure message container is hidden on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            messageContainer.classList.add('hidden');
+        });
+
+    </script>
+</body>
+</html>
