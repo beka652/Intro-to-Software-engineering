@@ -454,6 +454,33 @@
                     {% endfor %}
                     <span class="rating-text">{{ avg }}/5 ({{ product.total_reviews }})</span>
                 </div>
+                <!-- Reviews and Replies Section -->
+                <div class="dashboard-reviews-section" data-product-id="{{ product.id }}">
+                    <h6>Feedback & Replies</h6>
+                    {% for review in product.reviews %}
+                        <div class="dashboard-review" data-review-id="{{ review.id }}">
+                            <strong>{{ review.reviewer.username }}</strong>:
+                            <span class="comment-rating">{% for i in range(review.rating) %}&#9733;{% endfor %}</span>
+                            <p>{{ review.comment }}</p>
+                            <div class="dashboard-replies">
+                                {% for reply in review.replies %}
+                                    <div class="dashboard-reply">
+                                        <strong>{{ reply.farmer.username }}</strong> (You):
+                                        <span>{{ reply.reply_text }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if current_user.is_authenticated and current_user.role == 'Farmer' and product.farmer_id == current_user.id and review.replies|length == 0 %}
+                            <form class="dashboard-reply-form" data-review-id="{{ review.id }}" onsubmit="return false;" style="margin-top:5px;">
+                                <input type="text" name="reply" placeholder="Reply to this feedback..." required style="width:70%;">
+                                <button type="submit">Reply</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <p>No feedback yet.</p>
+                    {% endfor %}
+                </div>
                 <div class="button-group">
                     <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="button button-warning">
                         <i class="fas fa-edit"></i> Edit
@@ -544,6 +571,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 // Optionally: send rating to server here using fetch/AJAX
             });
+        });
+    });
+
+    // Reply form submit handler (AJAX) for dashboard
+    document.querySelectorAll('.dashboard-reply-form').forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const reviewId = this.getAttribute('data-review-id');
+            const reply = this.querySelector('input[name="reply"]').value;
+            fetch(`/products/reply/${reviewId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reply: reply })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Reply submitted!');
+                    this.reset();
+                    // Optionally reload the page or just update the replies section
+                    window.location.reload();
+                } else {
+                    alert(data.error || 'Failed to submit reply.');
+                }
+            })
+            .catch(() => alert('Error submitting reply.'));
         });
     });
 });

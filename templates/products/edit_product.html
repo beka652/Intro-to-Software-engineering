@@ -170,6 +170,39 @@
             <small class="form-text-muted">Leave empty to keep the current image</small>
         </div>
         
+        <div class="form-group">
+            <label for="unit" class="form-label">Measurement Unit</label>
+            <select class="form-select" id="unit" name="unit" required>
+                <option value="">Select unit</option>
+                <option value="Kg" {% if product.unit == 'Kg' %}selected{% endif %}>Kg</option>
+                <option value="Unit" {% if product.unit == 'Unit' %}selected{% endif %}>Unit</option>
+                <option value="Litre" {% if product.unit == 'Litre' %}selected{% endif %}>Litre</option>
+                <option value="Pack" {% if product.unit == 'Pack' %}selected{% endif %}>Pack</option>
+                <option value="Box" {% if product.unit == 'Box' %}selected{% endif %}>Box</option>
+                <option value="Other" {% if product.unit not in ['Kg','Unit','Litre','Pack','Box',None,''] %}selected{% endif %}>Other</option>
+            </select>
+            <input type="text" class="form-input" id="unit_other" name="unit_other" placeholder="Enter custom unit" style="display:none; margin-top:8px;" value="{% if product.unit not in ['Kg','Unit','Litre','Pack','Box',None,''] %}{{ product.unit }}{% endif %}">
+        </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var unitSelect = document.getElementById('unit');
+            var unitOther = document.getElementById('unit_other');
+            if(unitSelect && unitOther) {
+                function toggleOther() {
+                    if(unitSelect.value === 'Other') {
+                        unitOther.style.display = 'block';
+                        unitOther.required = true;
+                    } else {
+                        unitOther.style.display = 'none';
+                        unitOther.required = false;
+                    }
+                }
+                unitSelect.addEventListener('change', toggleOther);
+                toggleOther();
+            }
+        });
+        </script>
+        
         <div class="form-actions">
             <button type="submit" class="button button-primary">Update Product</button>
             <a href="{{ url_for('products.view_products') }}" class="button button-secondary">Cancel</a>
