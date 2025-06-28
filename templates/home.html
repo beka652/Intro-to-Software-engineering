@@ -607,7 +607,29 @@
             </div>
         {% endif %}
     </div>
+    <div class="filter-section">
+      <h2>Filter Products</h2>
+      <form method="get" action="{{ url_for('home.home') }}">
+        <label for="price_min">Min Price:</label>
+        <input type="number" id="price_min" name="price_min" step="0.01" value="{{ request.args.get('price_min', '') }}">
 
+        <label for="price_max">Max Price:</label>
+        <input type="number" id="price_max" name="price_max" step="0.01" value="{{ request.args.get('price_max', '') }}">
+
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category" value="{{ request.args.get('category', '') }}">
+
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location" value="{{ request.args.get('location', '') }}">
+         
+        <label for="quantity_min">Min Quantity:</label>
+        <input type="number" id="quantity_min" name="quantity_min" value="{{ request.args.get('quantity_min', '') }}">
+
+        <label for="quantity_max">Max Quantity:</label>
+        <input type="number" id="quantity_max" name="quantity_max" value="{{ request.args.get('quantity_max', '') }}">
+        <button type="submit">Filter</button>
+      </form>
+    </div>
     <!-- Products Section -->
     <div class="products-section">
         <h2 class="products-section-heading">Available Products</h2>
