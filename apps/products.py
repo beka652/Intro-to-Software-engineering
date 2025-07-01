@@ -81,26 +81,36 @@ def edit_product(product_id):
         product.price = float(request.form.get('price'))
         product.quantity = int(request.form.get('quantity'))
         product.is_available = bool(request.form.get('is_available'))
-        
+
+        # Handle unit/measurement
+        selected_unit = request.form.get('unit')
+        custom_unit = request.form.get('unit_other')
+        if selected_unit == 'Other' and custom_unit:
+            product.unit = custom_unit.strip()
+        elif selected_unit:
+            product.unit = selected_unit
+        else:
+            product.unit = 'Unit'  # fallback default
+
         # Handle product image update
         image = request.files.get('image')
         if image and image.filename:
             # Create user's product directory
             user_product_dir = os.path.join(UPLOAD_FOLDER, current_user.email)
             os.makedirs(user_product_dir, exist_ok=True)
-            
+
             # Delete old image if it exists
             if product.image_path:
                 old_image_path = os.path.join(UPLOAD_FOLDER, product.image_path)
                 if os.path.exists(old_image_path):
                     os.remove(old_image_path)
-            
+
             # Save the new image
             filename = secure_filename(image.filename)
             product.image_path = os.path.join(current_user.email, filename)
             image.save(os.path.join(UPLOAD_FOLDER, product.image_path))
             print(f"Debug - Updated image to: {os.path.join(UPLOAD_FOLDER, product.image_path)}")  # Debug line
-        
+
         db.session.commit()
         flash('Product updated successfully!', 'success')
         return redirect(url_for('dashboard.dashboard'))

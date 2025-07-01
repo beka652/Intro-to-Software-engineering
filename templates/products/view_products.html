@@ -154,8 +154,15 @@
                 <h5 class="product-card-title">{{ product.name }}</h5>
                 <p class="product-card-description">{{ product.description }}</p>
                 <div class="product-card-details">
-                    <strong>Price:</strong> ${{ "%.2f"|format(product.price) }}<br>
-                    <strong>Quantity Available:</strong> {{ product.quantity }}<br>
+                    <strong>Price:</strong> ${{ "%.2f"|format(product.price) }} <span class="product-unit">/{{ product.unit if product.unit else 'Unit' }}</span><br>
+                    <strong>Quantity Available:</strong> {{ product.quantity }} <span class="product-unit">{{ product.unit if product.unit else 'Unit' }}</span><br>
+    .product-unit {
+        font-size: 0.7em;
+        color: #555;
+        font-weight: 500;
+        vertical-align: super;
+        margin-left: 2px;
+    }
                     <strong>Seller:</strong> {{ product.farmer.username }}
                 </div>
                 <!-- Star Rating (read-only for all users) -->

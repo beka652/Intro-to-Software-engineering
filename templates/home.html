@@ -612,6 +612,21 @@
     .feedback-form button:hover {
         background-color: #0056b3;
     }
+    /* Product unit indicator*/
+    .product-unit {
+        font-size: 0.75em;
+        color: #888;
+        font-weight: 500;
+        vertical-align: baseline;
+        margin-left: 2px;
+        letter-spacing: 0.5px;
+        opacity: 0.85;
+        padding-left: 1px;
+        line-height: 1;
+        position: static;
+        top: 0;
+        display: inline-block;
+    }
 
     /* Comments Section Styles */
     .product-comments-section {
@@ -767,12 +782,12 @@
                                 </div>
                             </div>
                             <small>
-                                <i class="fas fa-box"></i> Available quantity: {{ product.quantity }} {{ product.unit or '' }}
+                                <i class="fas fa-box"></i> Available quantity: {{ product.quantity }} {{ product.unit if product.unit else 'Unit' }}
                             </small>
                         </div>
                         <div class="product-footer">
                             <span class="product-price">
-                                ${{ "%.2f"|format(product.price) }} /{{ product.unit or '' }}
+                                ${{ "%.2f"|format(product.price) }} <span class="product-unit">/{{ product.unit if product.unit else 'Unit' }}</span>
                             </span>
                             {% if current_user.is_authenticated and current_user.role == 'Buyer' %}
                                 <div class="add-to-cart-animated" id="add-to-cart-animated-{{ product.id }}">
