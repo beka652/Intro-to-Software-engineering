@@ -7,7 +7,7 @@ from apps.admin import admin_bp
 from apps.products import products_bp
 from apps.cart import cart_bp
 from flask import Flask, render_template
-from flask_migrate import Migrate
+
 
 app = Flask(__name__)
 
@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'QWERTYUIOP'
 db.init_app(app)
 login_manager.init_app(app)
-migrate = Migrate(app, db)
+
 
 @app.route('/')
 def welcome():
