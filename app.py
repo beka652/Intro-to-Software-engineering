@@ -6,6 +6,7 @@ from apps.dashboard import dashboard_bp
 from apps.admin import admin_bp
 from apps.products import products_bp
 from apps.cart import cart_bp
+from apps.payment import payment_bp
 from flask import Flask, render_template
 
 
@@ -32,6 +33,7 @@ app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(products_bp, url_prefix='/products')
 app.register_blueprint(cart_bp, url_prefix='/cart')
+app.register_blueprint(payment_bp)
 
 if __name__ == '__main__':
     with app.app_context():

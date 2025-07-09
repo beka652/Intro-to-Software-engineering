@@ -1,49 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Cart</title>
-    <style>
-        .cart-item { border: 1px solid #eee; border-radius: 8px; margin: 20px 0; padding: 20px; }
-        .product-title { font-size: 1.3em; font-weight: bold; }
-        .review-block { margin: 10px 0 10px 20px; padding: 10px; background: #f9f9f9; border-radius: 6px; }
-        .reply-block { margin: 5px 0 5px 40px; padding: 8px; background: #e8f5e9; border-radius: 6px; }
-        .star { color: #FFD700; }
-    </style>
-</head>
-<body>
-    <nav>
-    <a href="{{ url_for('home.home') }}">Home</a> |
-    <a href="{{ url_for('register.register') }}">Register</a> |
-    <a href="{{ url_for('signin.signin') }}">Sign In</a> |
-    <a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
-    </nav>
-    <h1>Your Cart</h1>
+{% extends "base.html" %}
+{% block content %}
+<div class="cart-container">
+    <div class="cart-title">Your Cart</div>
     {% if cart_items %}
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>
+                        {% if item.product.image_path %}
+                        <img src="{{ url_for('static', filename='uploads/' + item.product.image_path) }}" class="cart-item-img" alt="{{ item.product.name }}">
+                        {% endif %}
+                        <span class="product-title">{{ item.product.name }}</span>
+                    </td>
+                    <td>{{ item.product.quantity }} {{ item.product.unit }} * {{ '{:,.2f}'.format(item.product.price) }} birr</td>
+                    <td>{{ '{:,.2f}'.format(item.product.quantity * item.product.price) }} birr</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('cart.remove_from_cart', product_id=item.product.id) }}" style="display:inline;">
+                            <button type="submit" class="remove-btn">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% set ns = namespace(total_price=0, unit_totals={}) %}
         {% for item in cart_items %}
-        <div class="cart-item">
-            <div class="product-title">{{ item.product.name }} (x{{ item.quantity }})</div>
-            <div><strong>Price:</strong> ${{ '%.2f'|format(item.product.price) }}</div>
-            <div><strong>Description:</strong> {{ item.product.description }}</div>
-            <div><strong>All Feedback & Replies:</strong></div>
-            {% for review in item.reviews %}
-                <div class="review-block">
-                    <span><strong>{{ review.reviewer.username }}</strong>:</span>
-                    <span>{% for i in range(review.rating) %}<span class="star">&#9733;</span>{% endfor %}</span>
-                    <div>{{ review.comment }}</div>
-                    {% for reply in review.replies %}
-                        <div class="reply-block">
-                            <strong>{{ reply.farmer.username }} (Farmer):</strong> {{ reply.reply_text }}
-                        </div>
-                    {% endfor %}
-                </div>
+            {% set ns.total_price = ns.total_price + (item.product.quantity * item.product.price) %}
+            {% set unit = item.product.unit %}
+            {% if unit in ns.unit_totals %}
+                {% set ns.unit_totals = ns.unit_totals.update({unit: ns.unit_totals[unit] + item.product.quantity}) or ns.unit_totals %}
             {% else %}
-                <div style="margin-left:20px; color:#888;">No feedback yet.</div>
-            {% endfor %}
-        </div>
+                {% set ns.unit_totals = ns.unit_totals.update({unit: item.product.quantity}) or ns.unit_totals %}
+            {% endif %}
         {% endfor %}
+        <div class="cart-summary" style="margin-top:20px; font-weight:bold;">
+            Total: {{ '{:,.2f}'.format(ns.total_price) }} birr<br>
+            Total Units:
+            {%- for unit, qty in ns.unit_totals.items() %}
+                {{ qty }} {{ unit }}{% if not loop.last %}, {% endif %}
+            {%- endfor %}
+        </div>
+        <form method="POST" action="{{ url_for('cart.purchase') }}" style="margin-top: 24px; text-align: right;">
+            <button type="submit" class="btn btn-success" style="font-size:1.1em; padding: 10px 32px; border-radius: 8px; font-weight:600;">Purchase</button>
+        </form>
     {% else %}
-        <p>Your cart is empty.</p>
+        <div class="empty-cart-message">Your cart is empty.</div>
     {% endif %}
-</body>
-</html>
+</div>
+{% endblock %}

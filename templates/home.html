@@ -884,6 +884,7 @@
     </div>
 </div>
 
+<script src="/static/js/popup.js"></script>
 <script>
 console.log("Script loaded");
 
@@ -1075,6 +1076,28 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 // Optionally, show a message or update UI
             });
+        });
+    });
+
+    // Intercept Add to Cart button (AJAX)
+    document.querySelectorAll('.add-to-cart-btn, .add-to-cart-button').forEach(function(btn) {
+        btn.addEventListener('click', function(event) {
+            event.preventDefault();
+            const productId = btn.getAttribute('data-product-id') || btn.form?.action?.split('/').pop();
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: 1 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showPopup(data.message, false);
+                } else {
+                    showPopup(data.error || 'Item already exists in the cart.', true);
+                }
+            })
+            .catch(() => showPopup('Error adding to cart', true));
         });
     });
 

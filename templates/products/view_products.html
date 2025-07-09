@@ -137,6 +137,14 @@
             grid-template-columns: 1fr;
         }
     }
+
+    .product-unit {
+        font-size: 0.7em;
+        color: #555;
+        font-weight: 500;
+        vertical-align: super;
+        margin-left: 2px;
+    }
 </style>
 
 <div class="view-products-container">
@@ -156,13 +164,6 @@
                 <div class="product-card-details">
                     <strong>Price:</strong> ${{ "%.2f"|format(product.price) }} <span class="product-unit">/{{ product.unit if product.unit else 'Unit' }}</span><br>
                     <strong>Quantity Available:</strong> {{ product.quantity }} <span class="product-unit">{{ product.unit if product.unit else 'Unit' }}</span><br>
-    .product-unit {
-        font-size: 0.7em;
-        color: #555;
-        font-weight: 500;
-        vertical-align: super;
-        margin-left: 2px;
-    }
                     <strong>Seller:</strong> {{ product.farmer.username }}
                 </div>
                 <!-- Star Rating (read-only for all users) -->
@@ -179,7 +180,9 @@
                     {% endfor %}
                     <span class="rating-text">{{ avg }}/5 ({{ product.total_reviews }})</span>
                 </div>
-                <button class="add-to-cart-button" onclick="addToCart('{{ product.id }}')">Add to Cart</button>
+                <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" style="margin:0;">
+                    <button type="submit" class="add-to-cart-button">Add to Cart</button>
+                </form>
             </div>
         </div>
         {% else %}
@@ -189,64 +192,28 @@
         {% endfor %}
     </div>
 </div>
-
+<script src="/static/js/popup.js"></script>
 <script>
-function addToCart(productId) {
-    // TODO: Implement cart functionality and replace alert with a custom message box.
-    // For now, this placeholder is here.
-    const messageBox = document.createElement('div');
-    messageBox.className = 'message-box';
-    messageBox.innerHTML = `
-        <div class="message-box-content">
-            <p>Product ${productId} added to cart!</p>
-            <button onclick="this.parentNode.parentNode.remove()">OK</button>
-        </div>
-    `;
-    document.body.appendChild(messageBox);
-
-    // Basic styling for the message box (consider moving to a global CSS file)
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .message-box {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .message-box-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            font-family: "Inter", sans-serif;
-        }
-        .message-box-content p {
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            color: #333;
-        }
-        .message-box-content button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-        }
-        .message-box-content button:hover {
-            background-color: #45a049;
-        }
-    `;
-    document.head.appendChild(style);
-}
+// Intercept Add to Cart button (AJAX)
+document.querySelectorAll('.add-to-cart-button').forEach(function(btn) {
+    btn.addEventListener('click', function(event) {
+        event.preventDefault();
+        const productId = btn.form?.action?.split('/').pop();
+        fetch(`/cart/add/${productId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quantity: 1 })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showPopup(data.message, false);
+            } else {
+                showPopup(data.error || 'Item already exists in the cart.', true);
+            }
+        })
+        .catch(() => showPopup('Error adding to cart', true));
+    });
+});
 </script>
 {% endblock %}
