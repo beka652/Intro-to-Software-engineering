@@ -49,7 +49,8 @@
                 {{ qty }} {{ unit }}{% if not loop.last %}, {% endif %}
             {%- endfor %}
         </div>
-        <form method="POST" action="{{ url_for('cart.purchase') }}" style="margin-top: 24px; text-align: right;">
+        <form method="GET" action="{{ url_for('payment.payment') }}" style="margin-top: 24px; text-align: right;">
+            <input type="hidden" name="total" value="{{ ns.total_price }}">
             <button type="submit" class="btn btn-success" style="font-size:1.1em; padding: 10px 32px; border-radius: 8px; font-weight:600;">Purchase</button>
         </form>
     {% else %}

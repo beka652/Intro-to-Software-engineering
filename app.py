@@ -3,10 +3,12 @@ from apps.register import register_bp
 from apps.signin import signin_bp
 from apps.home import home_bp
 from apps.dashboard import dashboard_bp
+from apps.user_dashboard import dashboard_bp as user_dashboard_bp
 from apps.admin import admin_bp
 from apps.products import products_bp
 from apps.cart import cart_bp
 from apps.payment import payment_bp
+from apps.history import history_bp
 from flask import Flask, render_template
 
 
@@ -29,11 +31,13 @@ def aboutus():
 app.register_blueprint(register_bp, url_prefix='/register')
 app.register_blueprint(signin_bp, url_prefix='/signin')
 app.register_blueprint(home_bp, url_prefix='/home')
+app.register_blueprint(user_dashboard_bp, url_prefix='/user_dashboard')
 app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(products_bp, url_prefix='/products')
 app.register_blueprint(cart_bp, url_prefix='/cart')
 app.register_blueprint(payment_bp)
+app.register_blueprint(history_bp, url_prefix='/history')
 
 if __name__ == '__main__':
     with app.app_context():

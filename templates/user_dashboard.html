@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+.dashboard-container {
+    margin-top: 60px;
+    padding: 2rem 0;
+    background: linear-gradient(135deg, #e0ffe7 0%, #f9fbf8 100%);
+    min-height: 100vh;
+}
+.stat-card {
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    background: #fff;
+    padding: 2rem 1.5rem;
+    margin-bottom: 2rem;
+    transition: transform 0.2s cubic-bezier(.4,2,.6,1);
+    text-align: center;
+}
+.stat-card:hover {
+    transform: scale(1.04) rotate(-1deg);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #256d27;
+    margin-bottom: 0.5rem;
+    animation: fadeInDown 1s;
+}
+.stat-label {
+    font-size: 1.1rem;
+    color: #6c757d;
+    letter-spacing: 1px;
+}
+.dashboard-graphs {
+    margin-top: 2rem;
+}
+@media (min-width: 768px) {
+    .dashboard-row {
+        display: flex;
+        gap: 2rem;
+    }
+    .dashboard-graphs {
+        display: flex;
+        gap: 2rem;
+    }
+}
+</style>
+<div class="dashboard-container animate__animated animate__fadeIn">
+    <h2 class="mb-4 animate__animated animate__fadeInDown">Welcome, {{ current_user.username }}!</h2>
+    <div class="dashboard-row">
+        <div class="stat-card animate__animated animate__zoomIn">
+            <div class="stat-number">{{ total_orders }}</div>
+            <div class="stat-label">Total Orders</div>
+        </div>
+        <div class="stat-card animate__animated animate__zoomIn animate__delay-1s">
+            <div class="stat-number">{{ total_items }}</div>
+            <div class="stat-label">Items Purchased</div>
+        </div>
+        <div class="stat-card animate__animated animate__zoomIn animate__delay-2s">
+            <div class="stat-number">${{ '{:,.2f}'.format(total_spent) }}</div>
+            <div class="stat-label">Total Spent</div>
+        </div>
+        {% if current_user.role == 'Farmer' %}
+        <div class="stat-card animate__animated animate__zoomIn animate__delay-3s">
+            <div class="stat-number">{{ total_products }}</div>
+            <div class="stat-label">Products Listed</div>
+        </div>
+        <div class="stat-card animate__animated animate__zoomIn animate__delay-4s">
+            <div class="stat-number">{{ total_reviews }}</div>
+            <div class="stat-label">Product Reviews</div>
+        </div>
+        <div class="stat-card animate__animated animate__zoomIn animate__delay-5s">
+            <div class="stat-number">{{ avg_rating }}</div>
+            <div class="stat-label">Avg. Product Rating</div>
+        </div>
+        {% endif %}
+    </div>
+    <div class="dashboard-graphs">
+        <div style="flex:1;">
+            <canvas id="ordersChart" height="120"></canvas>
+        </div>
+        {% if current_user.role == 'Farmer' %}
+        <div style="flex:1;">
+            <canvas id="productsChart" height="120"></canvas>
+        </div>
+        {% endif %}
+    </div>
+    <div class="mt-5">
+        <h4 class="mb-3">Recent Orders</h4>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Order #</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>{{ order.formatted_datetime }}</td>
+                        <td>{{ order.id }}</td>
+                        <td>${{ '{:,.2f}'.format(order.dashboard_total) }}</td>
+                        <td><span class="badge bg-info">{{ order.payment_status|capitalize }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+// Orders over time (last 5 orders)
+const ordersData = {
+    labels: {{ recent_orders|reverse|map(attribute='formatted_month')|list|tojson }},
+    datasets: [
+        {
+            label: 'Order Total',
+            data: {{ recent_orders|reverse|map(attribute='dashboard_total')|list|tojson }},
+            backgroundColor: 'rgba(38, 109, 39, 0.2)',
+            borderColor: '#256d27',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 6,
+            pointHoverRadius: 10,
+            pointBackgroundColor: '#256d27'
+        },
+        {
+            label: 'Items Purchased',
+            data: {{ recent_orders|reverse|map(attribute='dashboard_quantity')|list|tojson }},
+            backgroundColor: 'rgba(90, 103, 216, 0.2)',
+            borderColor: '#5a67d8',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 6,
+            pointHoverRadius: 10,
+            pointBackgroundColor: '#5a67d8'
+        }
+    ]
+};
+const ordersChart = new Chart(document.getElementById('ordersChart'), {
+    type: 'line',
+    data: ordersData,
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Recent Order Totals', font: { size: 18 } }
+        },
+        animation: { duration: 1200, easing: 'easeInOutQuart' },
+        scales: {
+            y: { beginAtZero: true, ticks: { color: '#256d27' } },
+            x: { ticks: { color: '#256d27' } }
+        }
+    }
+});
+{% if current_user.role == 'Farmer' %}
+// Products and reviews bar chart
+const productsData = {
+    labels: [{% for p in products %}'{{ p.name|escape }}',{% endfor %}],
+    datasets: [
+        {
+            label: 'Reviews',
+            data: [{% for p in products %}{{ p.total_reviews }},{% endfor %}],
+            backgroundColor: 'rgba(90, 103, 216, 0.3)',
+            borderColor: '#5a67d8',
+            borderWidth: 2
+        },
+        {
+            label: 'Avg. Rating',
+            data: [{% for p in products %}{{ p.average_rating }},{% endfor %}],
+            backgroundColor: 'rgba(255, 158, 27, 0.3)',
+            borderColor: '#ff9e1b',
+            borderWidth: 2
+        }
+    ]
+};
+const productsChart = new Chart(document.getElementById('productsChart'), {
+    type: 'bar',
+    data: productsData,
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Product Reviews & Ratings', font: { size: 18 } }
+        },
+        animation: { duration: 1200, easing: 'easeInOutQuart' },
+        scales: {
+            y: { beginAtZero: true, ticks: { color: '#5a67d8' } },
+            x: { ticks: { color: '#5a67d8' } }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

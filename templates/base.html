@@ -669,6 +669,16 @@
                     <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill" style="font-size:0.8em;">{{ cart_count }}</span>
                   </a>
                 </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('history.history') }}">
+                    <i class="fa fa-history"></i> History
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('user_dashboard.dashboard') }}">
+                    <i class="fa fa-chart-bar"></i> My Dashboard
+                  </a>
+                </li>
               {% elif current_user.role == 'Farmer' %}
                 <li class="nav-item">
                   <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>

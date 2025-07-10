@@ -6,6 +6,38 @@ from datetime import datetime
 db = SQLAlchemy() # Assuming db is initialized elsewhere (e.g., app.py) and imported here
 login_manager = LoginManager()
 
+class Order(db.Model):
+    __tablename__ = 'orders'
+    id = db.Column(db.Integer, primary_key=True)
+    buyer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    total_amount = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    payment_status = db.Column(db.String(20), default='paid')
+    # Relationship
+    items = db.relationship('OrderItem', backref='order', lazy=True, cascade='all, delete-orphan')
+    buyer = db.relationship('User', backref='orders', foreign_keys=[buyer_id])
+
+    def __repr__(self):
+        return f'<Order {self.id} Buyer:{self.buyer_id} Total:{self.total_amount}>'
+
+class OrderItem(db.Model):
+    __tablename__ = 'order_items'
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    product_name = db.Column(db.String(100), nullable=False)
+    farmer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    farmer_name = db.Column(db.String(80), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    unit = db.Column(db.String(20), nullable=True)
+    price_at_purchase = db.Column(db.Float, nullable=False)
+    subtotal = db.Column(db.Float, nullable=False)
+    # Relationships
+    product = db.relationship('Product', backref='order_items', foreign_keys=[product_id])
+    farmer = db.relationship('User', backref='sold_items', foreign_keys=[farmer_id])
+
+    def __repr__(self):
+        return f'<OrderItem {self.id} Order:{self.order_id} Product:{self.product_id} Farmer:{self.farmer_id}>'
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
