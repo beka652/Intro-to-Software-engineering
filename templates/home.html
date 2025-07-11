@@ -697,6 +697,10 @@
     </div>
     
     <div class="main-content-area"> {# This was the previous container #}
+        <form method="get" action="" style="max-width: 400px; margin: 0 auto 30px auto; display: flex; gap: 10px;">
+            <input type="text" name="search" placeholder="Search by product name..." value="{{ search_query|default('') }}" style="flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1em;">
+            <button type="submit" style="padding: 10px 20px; border-radius: 5px; background-color: #007bff; color: white; border: none; font-size: 1em; cursor: pointer;">Search</button>
+        </form>
         {% if current_user.is_authenticated %}
             {% if current_user.role == 'Farmer' %}
                 <div class="welcome-alert">

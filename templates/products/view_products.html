@@ -142,6 +142,11 @@
 <div class="view-products-container">
     <h1 class="section-heading">Available Products</h1>
     
+    <form method="get" action="" style="max-width: 400px; margin: 0 auto 30px auto; display: flex; gap: 10px;">
+        <input type="text" name="search" placeholder="Search by product name..." value="{{ search_query|default('') }}" style="flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1em;">
+        <button type="submit" style="padding: 10px 20px; border-radius: 5px; background-color: #007bff; color: white; border: none; font-size: 1em; cursor: pointer;">Search</button>
+    </form>
+
     <div class="product-grid">
         {% for product in products %}
         <div class="product-card">

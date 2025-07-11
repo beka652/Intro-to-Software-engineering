@@ -8,13 +8,17 @@ from flask import jsonify
 products_bp = Blueprint('products', __name__)
 UPLOAD_FOLDER = 'static/uploads'
 
-@products_bp.route('/')
+@products_bp.route('/', methods=['GET'])
 @login_required
 def view_products():
+    search_query = request.args.get('search', '').strip()
     if current_user.role == 'Customer':
         # Show all available products for customers
-        products = Product.query.filter_by(is_available=True).all()
-        return render_template('products/view_products.html', products=products)
+        if search_query:
+            products = Product.query.filter(Product.is_available == True, Product.name.ilike(f"%{search_query}%")).all()
+        else:
+            products = Product.query.filter_by(is_available=True).all()
+        return render_template('products/view_products.html', products=products, search_query=search_query)
     elif current_user.role == 'Farmer':
         # Redirect farmers to their dashboard
         return redirect(url_for('dashboard.dashboard'))
