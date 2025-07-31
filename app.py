@@ -21,6 +21,23 @@ migrate = Migrate(app, db)
 def welcome():
     return render_template('welcome.html')
 
+@app.route('/feedback',methods=['GET', 'POST'])
+def feedback():
+    if request.method == 'POST' :
+        name = request.form['name']
+        email = request.form['email']
+        message = request.form['message']
+        user_type = request.form['user_type']
+        
+        new_feedback = Feedback(name=name, email=email, message=message, user_id=user_type)
+        try:
+            db.session.add(new_feedback)
+            db.session.commit()
+            flash('Thank you for your feedback!', 'success')
+        except:
+            flash('Error submitting feedback. Please try again.', 'danger')
+        
+    return rendet_template('feedback.html')
 @app.route('/aboutus')
 def aboutus():
     return render_template('aboutus.html')

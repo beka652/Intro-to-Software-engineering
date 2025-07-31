@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Give Us Your Feedback</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Farmers & Customers Marketplace</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/feedback" class="active">Feedback</a>
+        </nav>
+    </header>
+
+    <main class="feedback-container">
+        <h2>Give Us Your Feedback</h2>
+        <p>We value your input to improve our service</p>
+        
+        <form method="POST" action="/feedback">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label>I am a:</label>
+                <div class="user-type">
+                    <label>
+                        <input type="radio" name="user_type" value="customer" checked> Customer
+                    </label>
+                    <label>
+                        <input type="radio" name="user_type" value="farmer"> Farmer
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Your Feedback:</label>
+                <textarea id="message" name="message" required></textarea>
+            </div>
+            
+            <button type="submit">Submit Feedback</button>
+        </form>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Farmers & Customers Marketplace</p>
+    </footer>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+            
+            if (!name || !email || !message) {
+                e.preventDefault();
+                alert('Please fill in all fields');
+                return false;
+            }
+            
+            if (!validateEmail(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address');
+                return false;
+            }
+        });
+        
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    </script>
+</body>
+</html>
