@@ -1,43 +1,42 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="products-page-layout">
+  <aside class="filter-sidebar">
+    <h2>Filter Products</h2>
+    <form method="get" action="{{ url_for('products.view_products') }}">
+      <label for="price_min">Min Price:</label>
+      <input type="number" id="price_min" name="price_min" step="0.01" value="{{ request.args.get('price_min', '') }}">
 
-<div class="filter-section">
-  <h2>Filter Products</h2>
-  <form method="get" action="{{ url_for('products.view_products') }}">
-    <label for="price_min">Min Price:</label>
-    <input type="number" id="price_min" name="price_min" step="0.01" value="{{ request.args.get('price_min', '') }}">
+      <label for="price_max">Max Price:</label>
+      <input type="number" id="price_max" name="price_max" step="0.01" value="{{ request.args.get('price_max', '') }}">
 
-    <label for="price_max">Max Price:</label>
-    <input type="number" id="price_max" name="price_max" step="0.01" value="{{ request.args.get('price_max', '') }}">
+      <label for="category">Category:</label>
+      <input type="text" id="category" name="category" value="{{ request.args.get('category', '') }}">
 
-    <label for="category">Category:</label>
-    <input type="text" id="category" name="category" value="{{ request.args.get('category', '') }}">
+      <label for="location">Location:</label>
+      <input type="text" id="location" name="location" value="{{ request.args.get('location', '') }}">
 
-    <label for="location">Location:</label>
-    <input type="text" id="location" name="location" value="{{ request.args.get('location', '') }}">
-
-    <button type="submit">Filter</button>
-  </form>
+      <button type="submit">Filter</button>
+    </form>
+  </aside>
+  <section class="products-list">
+    {% if products and products|length > 0 %}
+      {% for product in products %}
+        <div class="product-card">
+          <strong>{{ product.name }}</strong><br>
+          {{ product.description }}<br>
+          <strong>Price:</strong> ${{ "%.2f"|format(product.price) }}<br>
+          <strong>Quantity Available:</strong> {{ product.quantity }}<br>
+          <strong>Category:</strong> {{ product.category }}<br>
+          <strong>Location:</strong> {{ product.location }}<br>
+          <strong>Seller:</strong> {{ product.farmer.username }}<br>
+          <hr>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No products available at the moment.</p>
+    {% endif %}
+  </section>
 </div>
-
-<div class="products-list">
-  {% if products and products|length > 0 %}
-    {% for product in products %}
-      <div class="product-card">
-        <strong>{{ product.name }}</strong><br>
-        {{ product.description }}<br>
-        <strong>Price:</strong> ${{ "%.2f"|format(product.price) }}<br>
-        <strong>Quantity Available:</strong> {{ product.quantity }}<br>
-        <strong>Category:</strong> {{ product.category }}<br>
-        <strong>Location:</strong> {{ product.location }}<br>
-        <strong>Seller:</strong> {{ product.farmer.username }}<br>
-        <hr>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>No products available at the moment.</p>
-  {% endif %}
-</div>
-
 {% endblock %}
