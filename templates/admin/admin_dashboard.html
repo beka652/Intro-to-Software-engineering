@@ -1,0 +1,29 @@
+<!-- templates/admin/admin_dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Welcome Admin, {{ current_user.username }}</h1>
+    <h2>All Users</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Action</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+                <form method="post" action="{{ url_for('admin.delete_user', user_id=user.id) }}">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
