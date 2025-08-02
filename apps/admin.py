@@ -13,7 +13,7 @@ def admin_dashboard():
         return redirect(url_for('home.homepage'))  # redirect to home or error page
     
     users = User.query.all()
-    return render_template('admin_dashboard.html', users=users)
+    return render_template('admin/admin_dashboard.html', users=users)
 
 # Optional: Delete a user
 @admin_bp.route('/delete_user/<int:user_id>', methods=['POST'])
