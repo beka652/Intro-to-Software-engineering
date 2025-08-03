@@ -80,6 +80,7 @@ class Product(db.Model):
     unit = db.Column(db.String(20), nullable=True)  # e.g., 'Kg', 'Unit', 'Litre'
     image_path = db.Column(db.String(255), nullable=True) # Path to product image
     is_available = db.Column(db.Boolean, default=True)
+    is_removed = db.Column(db.Boolean, default=False)  # Admin soft-removal
     farmer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

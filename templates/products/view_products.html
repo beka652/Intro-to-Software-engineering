@@ -30,7 +30,12 @@
             <img src="{{ url_for('static', filename='images/no-image.png') }}" class="product-card-image" alt="No image available">
             {% endif %}
             <div class="product-card-body">
-                <h5 class="product-card-title">{{ product.name }}</h5>
+                <h5 class="product-card-title">
+                  {{ product.name }}
+                  {% if product.is_removed %}
+                    <span class="badge bg-danger ms-2">Removed</span>
+                  {% endif %}
+                </h5>
                 <p class="product-card-description">{{ product.description }}</p>
                 <div class="product-card-details">
                     <strong>Price:</strong> ${{ "%.2f"|format(product.price) }} <span class="product-unit">/{{ product.unit if product.unit else 'Unit' }}</span><br>
@@ -51,9 +56,15 @@
                     {% endfor %}
                     <span class="rating-text">{{ avg }}/5 ({{ product.total_reviews }})</span>
                 </div>
-                <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" style="margin:0;">
-                    <button type="submit" class="add-to-cart-button">Add to Cart</button>
-                </form>
+                {% if current_user.is_authenticated and current_user.role == 'Admin' %}
+                  <form method="POST" action="{{ url_for('products.remove_product', product_id=product.id) }}" style="margin:0;">
+                    <button type="submit" class="add-to-cart-button bg-danger" {% if product.is_removed %}disabled{% endif %}>Remove</button>
+                  </form>
+                {% else %}
+                  <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" style="margin:0;">
+                    <button type="submit" class="add-to-cart-button" {% if product.is_removed %}disabled{% endif %}>Add to Cart</button>
+                  </form>
+                {% endif %}
             </div>
         </div>
         {% else %}

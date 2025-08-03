@@ -19,8 +19,8 @@ def view_products():
         category = request.args.get('category')
         location = request.args.get('location')
 
-        # Start with all available products
-        query = Product.query.filter_by(is_available=True)
+        # Start with all available and not removed products
+        query = Product.query.filter_by(is_available=True, is_removed=False)
 
         # Apply filters if provided
         if price_min is not None:
@@ -235,3 +235,15 @@ def get_reviews(product_id):
         'has_rated': has_rated,
         'user_review': serialize_review(user_review) if user_review else None
     })
+
+@products_bp.route('/remove/<int:product_id>', methods=['POST'])
+@login_required
+def remove_product(product_id):
+    if current_user.role != 'Admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('products.view_products'))
+    product = Product.query.get_or_404(product_id)
+    product.is_removed = True
+    db.session.commit()
+    flash('Product marked as removed.', 'success')
+    return redirect(url_for('products.view_products'))
